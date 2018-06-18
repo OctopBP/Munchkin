@@ -9,7 +9,7 @@ public class Client : MonoBehaviour {
 	public static Client Instance { get; set; }
 
 	private const int MAX_CONNECTION = 2;
-	private const string LOCALHOST = "127.0.0.1"; // my ip: "46.242.8.77", and this "192.168.31.1"
+	private const string LOCALHOST = "127.0.0.1";
 
 	private int port = 5701;
 
