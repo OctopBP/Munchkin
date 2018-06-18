@@ -1,0 +1,32 @@
+﻿{
+  "cards": [
+    {
+      "id": 0,
+      "cardType": 1,
+      "deckType": 0,
+      "name": "Lone Wanderer",
+      "texName": "Classes/LoneWanderer"
+    },
+    {
+      "id": 4,
+      "cardType": 1,
+      "deckType": 0,
+      "name": "Brotherhood Paladin",
+      "texName": "Classes/BrotherhoodPaladin"
+    },
+    {
+      "id": 8,
+      "cardType": 1,
+      "deckType": 0,
+      "name": "Raider",
+      "texName": "Classes/Raider"
+    },
+    {
+      "id": 12,
+      "cardType": 1,
+      "deckType": 0,
+      "name": "Enclave Scientist",
+      "texName": "Classes/EnclaveScientist"
+    }
+  ]
+}

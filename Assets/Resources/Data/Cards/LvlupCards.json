@@ -1,0 +1,18 @@
+﻿{
+  "cards": [
+    {
+      "id": 152,
+      "cardType": 2,
+      "deckType": 1,
+      "name": "Here And Now",
+      "texName": "Lvlups/HereAndNow"
+    },
+    {
+      "id": 153,
+      "cardType": 2,
+      "deckType": 1,
+      "name": "Intense Training",
+      "texName": "Lvlups/IntenseTraining"
+    }
+  ]
+}

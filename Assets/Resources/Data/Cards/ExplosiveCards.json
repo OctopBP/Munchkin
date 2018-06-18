@@ -1,0 +1,20 @@
+﻿{
+  "cards": [
+    {
+      "id": 163,
+      "cardType": 4,
+      "deckType": 1,
+      "name": "Nuke Grenade",
+      "texName": "Explosives/NukeGrenade",
+      "dmg": 5
+    },
+    {
+      "id": 165,
+      "cardType": 4,
+      "deckType": 1,
+      "name": "Plasma Grenade",
+      "texName": "Explosives/PlasmaGrenade",
+      "dmg": 3
+    }
+  ]
+}
