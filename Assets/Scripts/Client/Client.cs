@@ -14,7 +14,7 @@ public class Client : MonoBehaviour {
 	private int port = 5701;
 
 	private int hostId;
-	//private int webHostId;
+	private int webHostId;
 
 	private int ourClientId;
 	private int connectionId;
@@ -25,7 +25,6 @@ public class Client : MonoBehaviour {
 	private float connectionTime;
 	private bool isConnected = false;
 
-	//private bool isStarted = false;
 	private byte error;
 
 	private void Awake() {
@@ -141,7 +140,7 @@ public class Client : MonoBehaviour {
 
 	private void OnAskName(string[] data) {
 		ourClientId = int.Parse(data[1]);
-		Send(SendNames.nameis + "|" + ClientGM.Instance.player.info.name, reliableChannel);
+		Send(SendNames.nameis + "|" + ClientGM.Instance.player.info.name);
 	}
 
 	private void StartGame(string[] data) {
@@ -176,10 +175,10 @@ public class Client : MonoBehaviour {
 
 	public void OnDrop(Card card, string targetSlot) {
 		string msg = SendNames.trydropcard +"|" + ClientGM.Instance.player.info.number + "|" + card.id + "|" + targetSlot;
-		Send(msg, connectionId);
+		Send(msg);
 	}
 	public void EndTurn() {
-		Send(SendNames.endturn + "|" + ClientGM.Instance.player.info.number.ToString(), connectionId);
+		Send(SendNames.endturn + "|" + ClientGM.Instance.player.info.number.ToString());
 	}
 
 	private void AddCard(int pNum, Card.DeckType deckType, int cardId) {
@@ -221,9 +220,9 @@ public class Client : MonoBehaviour {
 		ClientGM.Instance.turnController.ChangeTurn(TurnStage.after_door, ClientGM.Instance.player.info.number == pNum);
 	}
 
-	private void Send(string message, int channelId) {
+	private void Send(string message) {
 		Debug.Log("Sending: " + message);
 		byte[] msg = Encoding.Unicode.GetBytes(message);
-		NetworkTransport.Send(hostId, connectionId, channelId, msg, message.Length * sizeof(char), out error);
+		NetworkTransport.Send(hostId, connectionId, reliableChannel, msg, message.Length * sizeof(char), out error);
 	}
 }
