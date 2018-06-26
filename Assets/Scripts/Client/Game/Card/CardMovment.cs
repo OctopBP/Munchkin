@@ -14,9 +14,10 @@ public class CardMovment : MonoBehaviour {
 
 	public bool cardSelected;
 	public bool cardActive;
-	bool isDraggable;
 
-    void Awake() {
+	private bool isYourCard;
+
+	private void Awake() {
 		cardInfo = GetComponent<CardInfo>();
 		//animator = GetComponent<CardAnimator>();
 
@@ -24,13 +25,11 @@ public class CardMovment : MonoBehaviour {
 		cardActive = true;
     }
 
-
-
-	void OnMouseOver() {
+	private void OnMouseOver() {
 		defaultParent = transform.parent;
 
 		bool canHover = defaultParent.GetComponent<DropSlot>().slotParent != SlotParent.ENEMY || defaultParent.GetComponent<DropSlot>().dropSlotType != DropSlotType.HAND;
-		isDraggable = defaultParent.GetComponent<DropSlot>().slotParent == SlotParent.SELF;
+		isYourCard = defaultParent.GetComponent<DropSlot>().slotParent == SlotParent.SELF;
 
 		if (!canHover) {
 			WriteNewPosition();
@@ -44,13 +43,11 @@ public class CardMovment : MonoBehaviour {
             cardSelected = true;
         }
     }
-
-	void OnMouseDown() {
+	private void OnMouseDown() {
 		// TODO: Hover down
 	}
-
-	void OnMouseDrag() {
-		if (!isDraggable || !cardActive)
+	private void OnMouseDrag() {
+		if (!isYourCard || !cardActive)
 			return;
 
 		Vector3 distanceToScreen = Camera.main.WorldToScreenPoint(transform.position);
@@ -60,9 +57,8 @@ public class CardMovment : MonoBehaviour {
 
 		// Если parent рука и находимся в пределах руки при перетаскивании меняем карты местами
 	}
-
-	void OnMouseUp() {
-		if (!isDraggable || !cardActive)
+	private void OnMouseUp() {
+		if (!isYourCard || !cardActive)
 			return;
 		
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -76,31 +72,24 @@ public class CardMovment : MonoBehaviour {
 					return;
 				}
 
-				if (targetSlot.slotParent == SlotParent.SELF || targetSlot.slotParent == SlotParent.WARTABLE) {
-					
-					targetSlot.OnDrop(cardInfo);
-					//WriteNewPosition();
-					//cardActive = false;
+				if (targetSlot.slotParent != SlotParent.ENEMY) {
+					Client.Instance.OnDrop(cardInfo.selfCard, targetSlot.dropSlotType);
+					WriteNewPosition();
+					cardActive = false;
 
 					return;
-				}
-				if (targetSlot.slotParent == SlotParent.WARTABLE) {
-					// 
 				}
 			}
 		}
 		ResetPosition();
     }
-
-	void OnMouseExit() {
+	private void OnMouseExit() {
 		ResetPosition();
 		cardSelected = false;
 		transform.SetParent(defaultParent);
 	}
 
-
-
-	void HoverCard() {
+	private void HoverCard() {
 		float zLimit = 1;
 		float xLimit = 4;
 		float distanceToCamera = 3;
@@ -117,26 +106,21 @@ public class CardMovment : MonoBehaviour {
 		transform.eulerAngles = new Vector3(0, 0, 0);
 	}
 
-
-
 	public void ResetPosition() {
         transform.position = basePosition;
         transform.eulerAngles = baseAngles;
 		//Debug.Log("ResetPos()");
     }
-
 	public void WriteNewPosition(Vector3 position, Vector3 angles) {
         basePosition = position;
         baseAngles = angles;
 		//Debug.Log("WriteNewPos(" + position + ", " + angles + ")");
     }
-
 	public void WriteNewPosition() {
         basePosition = transform.position;
         baseAngles = transform.eulerAngles;
 		//Debug.Log("WriteNewPos()");
     }
-
 	public void Animate(Vector3 targetPos, Vector3 targetAngles) {
 		WriteNewPosition(targetPos, targetAngles);
 		transform.position = targetPos;

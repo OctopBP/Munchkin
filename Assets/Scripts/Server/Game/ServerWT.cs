@@ -3,34 +3,34 @@ using UnityEngine;
 
 public class ServerWT {
 	
-	private List<Card> playerCards = new List<Card>();
-	private List<Card> monsterCards = new List<Card>();
+	private readonly List<Card> playerCards = new List<Card>();
+	private readonly List<Card> monsterCards = new List<Card>();
 
 	public int playerDmg = 0;
 	public int monsterDmg = 0;
 
 	public bool PlayerCanWin { get { return playerDmg > monsterDmg; } }
 
-	/*
-	public void PlayCard(CardInfo card, bool playerDS) {
-		if (card.typeIs(Card.CardType.LVLUP)) {
-			playerSide.AddCard(card);
-			gameManager.player.LvlUp(1);
-			Destroy(card.gameObject);
-			return;
-		}
+	public void PlayCard(Card card, bool playerDS) {
+		//if (card.typeIs(Card.CardType.LVLUP)) {
+		//	gameManager.player.LvlUp();
+		//	return;
+		//}
 
-		if (card.typeIs(Card.CardType.MONSTER) && gameManager.CurrentTS_Is(TurnStage.after_door)) {
-			//gameManager.turnController.MonsterPlayed();
-			AddCard(card, false);
-		}
+		//if (card.typeIs(Card.CardType.MONSTER) && gameManager.CurrentTS_Is(TurnStage.after_door)) {
+		//	//gameManager.turnController.MonsterPlayed();
+		//	AddCard(card, false);
+		//}
 
-		if (card.typeIs(Card.CardType.EXPLOSIVE) && gameManager.CurrentTS_Is(TurnStage.fight_player)) {
-			AddCard(card, playerDS);
+		if (card.cardType == Card.CardType.EXPLOSIVE) {
+			if (playerDS)
+				playerCards.Add(card);
+			else
+				monsterCards.Add(card);
+
 			CalculateDmg();
 		}
 	}
-*/
 
 	public void StartFight(Card monster) {
 		monsterCards.Add(monster);

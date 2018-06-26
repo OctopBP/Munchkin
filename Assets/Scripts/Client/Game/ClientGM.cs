@@ -9,7 +9,7 @@ public class ClientGM: MonoBehaviour {
 	public Munchkin enemy = new Munchkin();
 
 	public Munchkin GetMunchkin(int num) {
-		return player.info.number == num ? player : enemy;
+		return num == player.info.number ? player : enemy;
 	}
 
 	public WarTable warTable;
@@ -61,9 +61,6 @@ public class ClientGM: MonoBehaviour {
 		return cardInfo;
 	}
 
-	public void OnDrop(Card card, string targetSlot) {
-		Client.Instance.OnDrop(card, targetSlot);
-	}
 	public void EndTurn() {
 		Client.Instance.EndTurn();
 	}
@@ -74,12 +71,21 @@ public class ClientGM: MonoBehaviour {
 		cardInfo.OpenCard(card);
 		cardInfo.cardMovment.cardActive = false;
 
+		if (card.cardType == Card.CardType.LVLUP && targetSlot.StartsWith("WT_", System.StringComparison.CurrentCulture)) {
+			GetMunchkin(pNum).hand.RemoveCard(cardInfo);
+			Destroy(cardInfo.gameObject);
+			return;
+		}
+
 		switch (targetSlot) {
-			case "WEAPON1":	GetMunchkin(pNum).weapon1.AddCard(cardInfo); 	break;
-			case "WEAPON2":	GetMunchkin(pNum).weapon2.AddCard(cardInfo);	break;
-			case "HEAD":	GetMunchkin(pNum).head.AddCard(cardInfo);		break;
-			case "ARMOR":	GetMunchkin(pNum).armor.AddCard(cardInfo); 		break;
-			case "SHOES":	GetMunchkin(pNum).shoes.AddCard(cardInfo); 		break;
+			case "WEAPON1":		GetMunchkin(pNum).weapon1.AddCard(cardInfo); 	break;
+			case "WEAPON2":		GetMunchkin(pNum).weapon2.AddCard(cardInfo);	break;
+			case "HEAD":		GetMunchkin(pNum).head.AddCard(cardInfo);		break;
+			case "ARMOR":		GetMunchkin(pNum).armor.AddCard(cardInfo); 		break;
+			case "SHOES": 		GetMunchkin(pNum).shoes.AddCard(cardInfo); 		break;
+			case "CLASS":		GetMunchkin(pNum).munClass.AddCard(cardInfo);	break;
+			case "WT_MONSTER":	warTable.AddCard(cardInfo, false);				break;
+			case "WT_PLAYER":	warTable.AddCard(cardInfo, true);				break;
 		}
 
 		GetMunchkin(pNum).hand.RemoveCard(cardInfo);

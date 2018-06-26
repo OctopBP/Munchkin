@@ -173,7 +173,8 @@ public class Client : MonoBehaviour {
 		//players.Remove(players.Find(c => c.connectionId == cnnId));
 	}
 
-	public void OnDrop(Card card, string targetSlot) {
+	public void OnDrop(Card card, DropSlotType dropSlotType) {
+		string targetSlot = Enum.GetName(typeof(DropSlotType), dropSlotType);
 		string msg = SendNames.trydropcard +"|" + ClientGM.Instance.player.info.number + "|" + card.id + "|" + targetSlot;
 		Send(msg);
 	}
@@ -201,14 +202,12 @@ public class Client : MonoBehaviour {
 		int cardId = int.Parse(data[2]);
 		bool isMonster = int.Parse(data[3]) == 1;
 
-		if (isMonster) {
+		if (isMonster)
+			OnNewStage(pNum, TurnStage.fight_player);
 			//int pDmg = int.Parse(data[4]);	
 			//int mDmg = int.Parse(data[5]);	
-			OnNewStage(pNum, TurnStage.fight_player);
-		}
 		else
 			OnNewStage(pNum, TurnStage.waiting);
-			
 
 		ClientGM.Instance.OpenDoor(cardId, isMonster);
 	}

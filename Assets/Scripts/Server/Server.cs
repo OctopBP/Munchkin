@@ -98,7 +98,6 @@ public class Server : MonoBehaviour {
 		string msg = SendNames.askname + "|" + cnnId;
 		Send(msg, reliableChannel, cnnId);
 	}
-
 	private void OnDicconnection(int cnnId) {
 		if (ServerGM.Instance.player1.info.connectionId == cnnId && ServerGM.Instance.player1 != null)
 			ServerGM.Instance.player1 = null;
@@ -135,32 +134,15 @@ public class Server : MonoBehaviour {
 			ServerGM.Instance.StarGame();
 		}
 	}
-
 	private void TryDrop(int pNum, int cardId, string targetSlot) {
-		Card card = ServerGM.Instance.GetPlayerAt(pNum).munchkin.hand.Find(c => c.id == cardId);
-
-		if (card == null)
-			return;
-		
-		switch (targetSlot) {
-			case "WEAPON1": 	ServerGM.Instance.GetPlayerAt(pNum).munchkin.weapon1 = card as ThingCard; 	break;
-			case "WEAPON2":		ServerGM.Instance.GetPlayerAt(pNum).munchkin.weapon2 = card as ThingCard; 	break;
-			case "HEAD": 		ServerGM.Instance.GetPlayerAt(pNum).munchkin.head = card as ThingCard; 		break;
-			case "ARMOR": 		ServerGM.Instance.GetPlayerAt(pNum).munchkin.armor = card as ThingCard; 	break;
-			case "SHOES":		ServerGM.Instance.GetPlayerAt(pNum).munchkin.shoes = card as ThingCard;		break;
-			//case "WARTABLE":	ServerGM.Instance.GetPlayerAt(pNum). = card as Card;		break;
-		}
-
-		ServerGM.Instance.GetPlayerAt(pNum).munchkin.hand.Remove(card);
-		ServerGM.Instance.GetPlayerAt(pNum).munchkin.SetCloseId();
-
-		string msg = SendNames.dropcard + "|" + pNum + "|" + cardId + "|" + card.closeId + "|" + targetSlot;
+		ServerGM.Instance.TryDropCard(pNum, cardId, targetSlot);
+	}
+	public void SendDrop(int pNum, int cardId, int closeId, string targetSlot) {
+		string msg = SendNames.dropcard + "|" + pNum + "|" + cardId + "|" + closeId + "|" + targetSlot;
 		Send(msg, reliableChannel);
 	}
-
 	private void EndTurn(int pNum) {
-		if (ServerGM.Instance.turnController.CurPlayerTurnNum == ServerGM.Instance.GetPlayerAt(pNum).info.number)
-			ServerGM.Instance.turnController.ChangeTurn();
+		ServerGM.Instance.turnController.TryChangeTurn(pNum);
 	}
 
 	public void SendCardToHand(int pNum, Card card) {
@@ -180,9 +162,8 @@ public class Server : MonoBehaviour {
 		Send(msg, reliableChannel);
 	}
 	public void SendOpenDoor(int playerTurnNumber, int cardId, bool isMonster) {
-		
 		string msg = SendNames.opendoor + "|" + playerTurnNumber + "|" + cardId + "|";
-		if (isMonster)
+		if (isMonster) 
 			msg += 1 + "|" + ServerGM.Instance.warTable.playerDmg + "|" + ServerGM.Instance.warTable.monsterDmg;
 		else
 			msg += 0;

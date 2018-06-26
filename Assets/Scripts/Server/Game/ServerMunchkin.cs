@@ -11,7 +11,7 @@ public class ServerMunchkin : MonoBehaviour {
 	public ThingCard shoes;
 	public ClassCard munClass;
 
-	public int lvl;
+	public int lvl = 1;
 	public int Damage {
 		get {
 			int dmg = lvl;
@@ -25,12 +25,7 @@ public class ServerMunchkin : MonoBehaviour {
 			return dmg;
 		}
 	}
-
-	private void Start() {
-		lvl = 1;
-	}
-
-	public void LvlUp(int lvls) {
+	public void LvlUp(int lvls = 1) {
 		lvl += lvls;
 	}
 

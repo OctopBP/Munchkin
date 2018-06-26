@@ -25,10 +25,8 @@ public class WarTable : MonoBehaviour {
 	}
 
 	public void ClearTable() {
-		foreach (CardInfo card in playerSide.cards)
-			Destroy(card.gameObject);
-		foreach (CardInfo card in monsterSide.cards)
-			Destroy(card.gameObject);
+		playerSide.ClearSide();
+		monsterSide.ClearSide();
 	}
 
 	/*

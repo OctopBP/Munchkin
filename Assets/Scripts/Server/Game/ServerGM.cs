@@ -26,6 +26,8 @@ public class ServerGM : MonoBehaviour {
 	public ServerWT warTable;
 
 	public TextMeshProUGUI debugText;
+	public TextMeshProUGUI doorDeckCountText;
+	public TextMeshProUGUI treasureDeckCountText;
 
 	private void Awake() {
 		Instance = this;
@@ -51,10 +53,10 @@ public class ServerGM : MonoBehaviour {
 	}
 
 	public void GiveStartCards() {
-		GiveHandCards(numberOfCards: 1, sp: player1, deck: doorDeck);
-		GiveHandCards(numberOfCards: 4, sp: player1, deck: treasureDeck);
-		GiveHandCards(numberOfCards: 1, sp: player2, deck: doorDeck);
-		GiveHandCards(numberOfCards: 4, sp: player2, deck: treasureDeck);
+		GiveHandCards(numberOfCards: 2, sp: player1, deck: doorDeck);
+		GiveHandCards(numberOfCards: 2, sp: player1, deck: treasureDeck);
+		GiveHandCards(numberOfCards: 2, sp: player2, deck: doorDeck);
+		GiveHandCards(numberOfCards: 2, sp: player2, deck: treasureDeck);
 	}
 	private void GiveHandCards(int numberOfCards, ServerPlayer sp, List<Card> deck) {
 		for (int i = 0; i < numberOfCards; i++)
@@ -66,34 +68,78 @@ public class ServerGM : MonoBehaviour {
 
 		Card card = deck[0];
 		deck.RemoveAt(0);
+		doorDeckCountText.text = doorDeck.Count + " Doors";
+		treasureDeckCountText.text = treasureDeck.Count + " Treasures";
 		card.closeId = sp.munchkin.hand.Count;
 		sp.munchkin.hand.Add(card);
 
 		Server.Instance.SendCardToHand(sp.info.number, card);
 	}
 
-	/*
-	public void OnDrop(int pNum, int cardId, string targetSlot) {
+	public void TryDropCard(int pNum, int cardId, string targetSlot) {
 		Card card = GetPlayerAt(pNum).munchkin.hand.Find(c => c.id == cardId);
 
-		if (card == null)
+		if (card == null) // send NO
 			return;
+		
+		if (targetSlot == "WT_MONSTER" && targetSlot == "WT_PLAYER") {
+			if (card.cardType == Card.CardType.EXPLOSIVE) {
+				if (((turnController.currentTurnStage == TurnStage.fight_player) && (turnController.CurPlayerTurnNum == pNum)) ||
+					((turnController.currentTurnStage == TurnStage.fight_enemy) && (turnController.CurPlayerTurnNum != pNum))) {
 
-		switch (targetSlot) {
-			case "WEAPON1": GetPlayerAt(pNum).munchkin.weapon1 = card as ThingCard; break;
-			case "WEAPON2": GetPlayerAt(pNum).munchkin.weapon2 = card as ThingCard; break;
-			case "HEAD": 	GetPlayerAt(pNum).munchkin.head = card as ThingCard;	break;
-			case "ARMOR":	GetPlayerAt(pNum).munchkin.armor = card as ThingCard;	break;
-			case "SHOES":	GetPlayerAt(pNum).munchkin.shoes = card as ThingCard;	break;
+					warTable.PlayCard(card, targetSlot == "WT_PLAYER");
+				}
+			}
+			else if (card.cardType == Card.CardType.LVLUP) {
+				GetCurPlayer().munchkin.LvlUp();
+			}
+
+		}
+		else {
+			if (card.cardType == Card.CardType.THING) {
+				switch (targetSlot) {
+					case "WEAPON1":
+						if ((card as ThingCard).thingType == ThingCard.ThingType.WEAPON)
+							GetPlayerAt(pNum).munchkin.weapon1 = card as ThingCard;
+						break;
+
+					case "WEAPON2":
+						if ((card as ThingCard).thingType == ThingCard.ThingType.WEAPON)
+							GetPlayerAt(pNum).munchkin.weapon2 = card as ThingCard;
+						break;
+
+					case "HEAD":
+						if ((card as ThingCard).thingType == ThingCard.ThingType.HEAD)
+							GetPlayerAt(pNum).munchkin.head = card as ThingCard;
+						break;
+
+					case "ARMOR":
+						if ((card as ThingCard).thingType == ThingCard.ThingType.ARMOR)
+							GetPlayerAt(pNum).munchkin.armor = card as ThingCard;
+						break;
+
+					case "SHOES":
+						if ((card as ThingCard).thingType == ThingCard.ThingType.SHOES)
+							GetPlayerAt(pNum).munchkin.shoes = card as ThingCard;
+						break;
+				}
+			}
+
+			if (card.cardType == Card.CardType.CLASS && targetSlot == "CLASS")
+				GetPlayerAt(pNum).munchkin.munClass = card as ClassCard;
 		}
 
+	}
+	private void TurnAllowed(int pNum, Card card, string targetSlot) {
 		GetPlayerAt(pNum).munchkin.hand.Remove(card);
 		GetPlayerAt(pNum).munchkin.SetCloseId();
 
-		string msg = SendNames.dropcard + "|" + pNum + "|" + cardId + "|" + card.closeId + "|" + targetSlot;
-		Send(msg, reliableChannel);
+		Server.Instance.SendDrop(pNum, card.id, card.closeId, targetSlot);
 	}
-	*/
+	private void TurnDisallowed(int pNum) {
+
+	}
+
 
 	public void OpenDoor(out bool isMonster) {
 		isMonster = false;
@@ -103,6 +149,7 @@ public class ServerGM : MonoBehaviour {
 
 		Card card = doorDeck[0];
 		doorDeck.RemoveAt(0);
+		doorDeckCountText.text = doorDeck.Count + " Doors";
 	
 		isMonster = card.cardType == Card.CardType.MONSTER;
 

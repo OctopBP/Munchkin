@@ -23,6 +23,13 @@ public class WarTableSide : MonoBehaviour {
 		cards.Add(card);
 	}
 
+	public void ClearSide() {
+		foreach (CardInfo card in cards)
+			Destroy(card.gameObject);
+		
+		cards.Clear();
+	}
+
 	//public void DestroyAllCards() {
 	//	foreach (CardInfo card in cards)
 	//		Destroy(card.gameObject);

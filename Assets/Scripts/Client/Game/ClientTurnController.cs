@@ -47,8 +47,13 @@ public class ClientTurnController : MonoBehaviour {
 		currentTurnStage = newStage;
 		turnStageText.text = currentTurnStage.ToString();
 
-		endTurnButton.enabled = isPlayerTurn ^ (newStage == TurnStage.fight_enemy);
-		endTurnButton.image.color = (isPlayerTurn ^ (newStage == TurnStage.fight_enemy)) ? new Color(110, 180, 90) : new Color(240, 65, 70);
+		Color disableColor = Color.grey; // new Color(110, 180, 90);
+		Color enableColor = Color.green; // new Color(240, 65, 70);
+
+		bool isButtonEnable = (isPlayerTurn ^ (newStage == TurnStage.fight_enemy)) && (newStage != TurnStage.waiting);
+
+		endTurnButton.image.color = isButtonEnable ? enableColor : disableColor;
+		endTurnButton.enabled = isButtonEnable;
 
 		StartCoroutine(TurnFunc());
 	}

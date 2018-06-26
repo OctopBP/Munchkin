@@ -15,7 +15,7 @@ public class ServerTurnController : MonoBehaviour {
 
 	private int[] turnTime;
 	private int turnNumber;
-	private TurnStage currentTurnStage;
+	public TurnStage currentTurnStage;
 
 	// for debug
 	public TextMeshProUGUI timeText;
@@ -23,6 +23,14 @@ public class ServerTurnController : MonoBehaviour {
 	public TextMeshProUGUI playerText;
 	
 	public int CurPlayerTurnNum { get { return turnNumber % 2; } }
+
+	public void TryChangeTurn(int pNum) {
+		bool isPlayerTurn = ServerGM.Instance.turnController.CurPlayerTurnNum == ServerGM.Instance.GetPlayerAt(pNum).info.number;
+		bool canEndTurn = (isPlayerTurn ^ (currentTurnStage == TurnStage.fight_enemy)) && (currentTurnStage != TurnStage.waiting);
+
+		if (canEndTurn)
+			ChangeTurn();
+	}
 
 	public void StatFirstTurn() {
 		turnTime = new int[] { 20, 2, 20, 20, 5, 10, 5 };
@@ -104,6 +112,7 @@ public class ServerTurnController : MonoBehaviour {
 			currentTurnStage = TurnStage.fight_enemy;
 		}
 		else {
+			// lose
 			currentTurnStage = TurnStage.completion;
 
 			ServerGM.Instance.warTable.ClearTable();
@@ -114,6 +123,7 @@ public class ServerTurnController : MonoBehaviour {
 
 	void CheckWinAfterEnemyTurn() {
 		if (ServerGM.Instance.warTable.PlayerCanWin) {
+			// win
 			ServerGM.Instance.OnPlayerWinFight();
 			currentTurnStage = TurnStage.completion;
 

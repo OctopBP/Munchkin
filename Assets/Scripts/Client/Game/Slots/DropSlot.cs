@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public enum SlotParent {
 	SELF,
@@ -24,23 +23,25 @@ public class DropSlot: MonoBehaviour {
 	public SlotParent slotParent;
 	public DropSlotType dropSlotType;
 
-	public void OnDrop(CardInfo card) {
+	//public void OnDrop(CardInfo card) {
+		/*
 		if (slotParent == SlotParent.ENEMY)
 			return;
 
+		// TODO: Remove
 		if (slotParent == SlotParent.WARTABLE) {
-			if (((ClientGM.Instance.turnController.currentTurnStage == TurnStage.fight_player) && ClientGM.Instance.turnController.playerTurn) ||
-			    ((ClientGM.Instance.turnController.currentTurnStage == TurnStage.fight_enemy) && !ClientGM.Instance.turnController.playerTurn)) {
-
-				if (card.selfCard.cardType == Card.CardType.LVLUP) {
-
-					//ClientGM.Instance.warTable.AddCard(card, dropSlotType == DropSlotType.WT_PLAYER);
-					//ClientGM.Instance.player.hand.RemoveCard(card);
+			if (card.selfCard.cardType == Card.CardType.EXPLOSIVE) {
+				if (((ClientGM.Instance.turnController.currentTurnStage == TurnStage.fight_player) && ClientGM.Instance.turnController.playerTurn) ||
+			    	((ClientGM.Instance.turnController.currentTurnStage == TurnStage.fight_enemy) && !ClientGM.Instance.turnController.playerTurn)) {
 
 					ClientGM.Instance.OnDrop(card.selfCard, Enum.GetName(typeof(DropSlotType), dropSlotType));
 				}
-
 			}
+
+			if (card.selfCard.cardType == Card.CardType.LVLUP) {
+				ClientGM.Instance.OnDrop(card.selfCard, Enum.GetName(typeof(DropSlotType), dropSlotType));
+			}
+
 			return;	
 		}
 
@@ -52,9 +53,6 @@ public class DropSlot: MonoBehaviour {
 					|| ((card.selfCard as ThingCard).thingType == ThingCard.ThingType.ARMOR && dropSlotType == DropSlotType.ARMOR)
 					|| ((card.selfCard as ThingCard).thingType == ThingCard.ThingType.SHOES && dropSlotType == DropSlotType.SHOES)) {
 
-					//GetComponent<ThingSlot>().AddCard(card);
-					//ClientGM.Instance.player.hand.RemoveCard(card);
-
 					ClientGM.Instance.OnDrop(card.selfCard, Enum.GetName(typeof(DropSlotType), dropSlotType));
 
 					return;
@@ -63,11 +61,12 @@ public class DropSlot: MonoBehaviour {
 
 			if (card.selfCard.cardType == Card.CardType.CLASS) {
 				if (dropSlotType == DropSlotType.CLASS) {
-					ClientGM.Instance.OnDrop(card.selfCard, dropSlotType.ToString());
+					ClientGM.Instance.OnDrop(card.selfCard, Enum.GetName(typeof(DropSlotType), dropSlotType));
 				}
 			}
 		}
-	}
+		*/
+	//}
 
 	/*
 	public void OnDrop(CardInfo card) {

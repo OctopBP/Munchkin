@@ -1,18 +1,17 @@
 ﻿using UnityEngine;
 
-public class ThingSlot: MonoBehaviour {
+public class ClassSlot: MonoBehaviour {
 
 	CardInfo card;
-	public ThingCard.ThingType thingType;
 
 	public void AddCard(CardInfo newCard) {
 		RemoveCard();
 
-        card = newCard;
+		card = newCard;
 		newCard.transform.parent = transform;
 
-        PlaceCard();
-    }
+		PlaceCard();
+	}
 
 	public void RemoveCard() {
 		if (card != null) {
@@ -23,15 +22,7 @@ public class ThingSlot: MonoBehaviour {
 
 	void PlaceCard() {
 		card.transform.position = transform.position;
-        card.transform.eulerAngles = new Vector3(0f, 0, 0f);
+		card.transform.eulerAngles = new Vector3(0f, 0, 0f);
 		card.cardMovment.WriteNewPosition();
-    }
-
-	public int GetSlotBonus() {
-		if (card == null) {
-			return 0;
-		}
-
-		return (card.selfCard as ThingCard).bonus;
 	}
 }
