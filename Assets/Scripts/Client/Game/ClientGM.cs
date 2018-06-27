@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using TMPro;
+using System.Collections.Generic;
 
 public class ClientGM: MonoBehaviour {
 
@@ -13,6 +14,8 @@ public class ClientGM: MonoBehaviour {
 	}
 
 	public WarTable warTable;
+
+	public List<CardInfo> freezCards = new List<CardInfo>();
 
     public GameObject cardPrefab;
 	public ClientTurnController turnController;
@@ -46,7 +49,7 @@ public class ClientGM: MonoBehaviour {
 		return cardInfo;
 	}
 	public CardInfo CreateCard(int cardId) {
-		Card card = CardManagerData.allCard.Find(c => c.id == cardId);
+		Card card = GetCard(cardId);
 
 		Vector3 deckPos = new Vector3(6.6f, 0.8f, 0);
 		Quaternion deckQuat = Quaternion.identity;
@@ -68,11 +71,12 @@ public class ClientGM: MonoBehaviour {
 	public void Drop(int pNum, int cardId, int closId, string targetSlot) {
 		CardInfo cardInfo = GetMunchkin(pNum).hand.GetCard(closId);
 		Card card = GetCard(cardId);
-		cardInfo.OpenCard(card);
-		cardInfo.cardMovment.cardActive = false;
+		if (!cardInfo.cardIsOpen)
+			cardInfo.OpenCard(card);
 
-		if (card.cardType == Card.CardType.LVLUP && targetSlot.StartsWith("WT_", System.StringComparison.CurrentCulture)) {
+		if (targetSlot.StartsWith("WT_", System.StringComparison.CurrentCulture) && card.cardType == Card.CardType.LVLUP) {
 			GetMunchkin(pNum).hand.RemoveCard(cardInfo);
+			freezCards.Remove(cardInfo);
 			Destroy(cardInfo.gameObject);
 			return;
 		}
@@ -89,7 +93,14 @@ public class ClientGM: MonoBehaviour {
 		}
 
 		GetMunchkin(pNum).hand.RemoveCard(cardInfo);
+
+		cardInfo.cardMovment.AllowDrop();
+		freezCards.Remove(cardInfo);
 	}
+	public void DropDisallowed(int cardId, string reason) {
+		freezCards.Find(c => c.selfCard.id == cardId).cardMovment.UndoDrop();
+	}
+
 	public void OpenDoor(int cardId, bool isMonster) {
 		CardInfo cardInfo = CreateCard(cardId);
 	
@@ -100,6 +111,9 @@ public class ClientGM: MonoBehaviour {
 	}
 
 	public Card GetCard(int cardId) {
-		return CardManagerData.allCard.Find(c => c.id == cardId);
+		Card card = CardManagerData.allDoorCards.Find(c => c.id == cardId);
+		if (card != null)
+			return card;
+		return CardManagerData.allTreasureCards.Find(c => c.id == cardId);
 	}
 }

@@ -17,8 +17,8 @@ public class WarTableSide : MonoBehaviour {
 
 	public void AddCard(CardInfo card) {
 		card.transform.parent = transform;
-		card.transform.position = transform.position;
-		card.transform.eulerAngles = Vector3.zero;
+		card.cardMovment.WriteNewPosition(plasePos, Vector3.zero);
+		card.cardMovment.ResetPosition();
 
 		cards.Add(card);
 	}

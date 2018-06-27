@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class CardMovment : MonoBehaviour {
 
@@ -9,12 +10,16 @@ public class CardMovment : MonoBehaviour {
 	[HideInInspector] public CardInfo cardInfo;
 	//[HideInInspector] public CardAnimator animator;
 
-    Vector3 basePosition;
-	Vector3 baseAngles;
+	private Vector3 basePosition;
+	private Vector3 baseAngles;
+
+	//private Vector3 targetPosition;
+	//private Vector3 targetAngles;
 
 	public bool cardSelected;
 	public bool cardActive;
 
+	private bool cardFreezed;
 	private bool isYourCard;
 
 	private void Awake() {
@@ -23,9 +28,13 @@ public class CardMovment : MonoBehaviour {
 
 		border.enabled = false;
 		cardActive = true;
+		cardFreezed = false;
     }
 
 	private void OnMouseOver() {
+		if (cardFreezed)
+			return;
+		
 		defaultParent = transform.parent;
 
 		bool canHover = defaultParent.GetComponent<DropSlot>().slotParent != SlotParent.ENEMY || defaultParent.GetComponent<DropSlot>().dropSlotType != DropSlotType.HAND;
@@ -47,7 +56,7 @@ public class CardMovment : MonoBehaviour {
 		// TODO: Hover down
 	}
 	private void OnMouseDrag() {
-		if (!isYourCard || !cardActive)
+		if (!isYourCard || !cardActive || cardFreezed)
 			return;
 
 		Vector3 distanceToScreen = Camera.main.WorldToScreenPoint(transform.position);
@@ -58,13 +67,14 @@ public class CardMovment : MonoBehaviour {
 		// Если parent рука и находимся в пределах руки при перетаскивании меняем карты местами
 	}
 	private void OnMouseUp() {
-		if (!isYourCard || !cardActive)
+		if (!isYourCard || !cardActive || cardFreezed)
 			return;
 		
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit[] hits = Physics.RaycastAll(ray);
 
 		foreach (RaycastHit hit in hits) {
+		
 			DropSlot targetSlot = hit.collider.gameObject.transform.GetComponent<DropSlot>();
 			if (targetSlot) {
 				if (targetSlot.transform == defaultParent) {
@@ -73,10 +83,11 @@ public class CardMovment : MonoBehaviour {
 				}
 
 				if (targetSlot.slotParent != SlotParent.ENEMY) {
-					Client.Instance.OnDrop(cardInfo.selfCard, targetSlot.dropSlotType);
-					WriteNewPosition();
-					cardActive = false;
+					string targetSlotName = Enum.GetName(typeof(DropSlotType), targetSlot.dropSlotType);
 
+					Client.Instance.OnDrop(cardInfo.selfCard, targetSlotName);
+					ClientGM.Instance.freezCards.Add(cardInfo);
+					cardFreezed = true;
 					return;
 				}
 			}
@@ -84,6 +95,9 @@ public class CardMovment : MonoBehaviour {
 		ResetPosition();
     }
 	private void OnMouseExit() {
+		if (cardFreezed)
+			return;
+		
 		ResetPosition();
 		cardSelected = false;
 		transform.SetParent(defaultParent);
@@ -106,20 +120,29 @@ public class CardMovment : MonoBehaviour {
 		transform.eulerAngles = new Vector3(0, 0, 0);
 	}
 
+	public void UndoDrop() {
+		cardFreezed = false;
+		ResetPosition();
+	}
+	public void AllowDrop() {
+		cardFreezed = false;
+		cardActive = false;
+		//WriteNewPosition(targetSlot.transform.position, targetSlot.transform.eulerAngles);
+		//defaultParent = targetSlot.transform;
+		ResetPosition();
+	}
+
 	public void ResetPosition() {
         transform.position = basePosition;
         transform.eulerAngles = baseAngles;
-		//Debug.Log("ResetPos()");
     }
 	public void WriteNewPosition(Vector3 position, Vector3 angles) {
         basePosition = position;
         baseAngles = angles;
-		//Debug.Log("WriteNewPos(" + position + ", " + angles + ")");
     }
 	public void WriteNewPosition() {
         basePosition = transform.position;
         baseAngles = transform.eulerAngles;
-		//Debug.Log("WriteNewPos()");
     }
 	public void Animate(Vector3 targetPos, Vector3 targetAngles) {
 		WriteNewPosition(targetPos, targetAngles);

@@ -15,7 +15,6 @@ public class Server : MonoBehaviour {
 	private int webHostId;
 
 	private int reliableChannel;
-	//private int unreliableChannel;
 
 	private bool isStarted = false;
 	private byte error;
@@ -137,9 +136,13 @@ public class Server : MonoBehaviour {
 	private void TryDrop(int pNum, int cardId, string targetSlot) {
 		ServerGM.Instance.TryDropCard(pNum, cardId, targetSlot);
 	}
-	public void SendDrop(int pNum, int cardId, int closeId, string targetSlot) {
-		string msg = SendNames.dropcard + "|" + pNum + "|" + cardId + "|" + closeId + "|" + targetSlot;
+	public void SendTurnAllowed(int pNum, int cardId, int closeId, string targetSlot) {
+		string msg = SendNames.dropallowew + "|" + pNum + "|" + cardId + "|" + closeId + "|" + targetSlot;
 		Send(msg, reliableChannel);
+	}
+	public void SendTurnDisllowed(int pNum, int cardId, string reason) {
+		string msg = SendNames.dropdisallowew + "|" + cardId + "|" + reason;
+		Send(msg, reliableChannel, ServerGM.Instance.GetPlayerAt(pNum).info.connectionId);
 	}
 	private void EndTurn(int pNum) {
 		ServerGM.Instance.turnController.TryChangeTurn(pNum);

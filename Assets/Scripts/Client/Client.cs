@@ -126,9 +126,14 @@ public class Client : MonoBehaviour {
 					OnNewStage(int.Parse(splitData[1]), (TurnStage)Enum.Parse(typeof(TurnStage), splitData[2]));
 					break;
 
-				case SendNames.dropcard:
+				case SendNames.dropallowew:
 					Debug.Log("Player " + splitData[1] + " drop " + splitData[2] + " card from pos " + splitData[3] + " to: " + splitData[4]);
 					Drop(int.Parse(splitData[1]), int.Parse(splitData[2]), int.Parse(splitData[3]), splitData[4]);
+					break;
+
+				case SendNames.dropdisallowew:
+					Debug.Log("Drop for card whith id " + int.Parse(splitData[1]) + " disallowes beacose " + splitData[2]);
+					DropDisallowed(int.Parse(splitData[1]), splitData[2]);
 					break;
 
 				default:
@@ -173,8 +178,7 @@ public class Client : MonoBehaviour {
 		//players.Remove(players.Find(c => c.connectionId == cnnId));
 	}
 
-	public void OnDrop(Card card, DropSlotType dropSlotType) {
-		string targetSlot = Enum.GetName(typeof(DropSlotType), dropSlotType);
+	public void OnDrop(Card card, string targetSlot) {
 		string msg = SendNames.trydropcard +"|" + ClientGM.Instance.player.info.number + "|" + card.id + "|" + targetSlot;
 		Send(msg);
 	}
@@ -196,6 +200,9 @@ public class Client : MonoBehaviour {
 	}
 	private void Drop(int pNum, int cardId, int closId, string targetSlot) {
 		ClientGM.Instance.Drop(pNum, cardId, closId, targetSlot);
+	}
+	private void DropDisallowed(int cardId, string reason) {
+		ClientGM.Instance.DropDisallowed(cardId, reason);
 	}
 	private void OpenDoor(string[] data) {
 		int pNum = int.Parse(data[1]);

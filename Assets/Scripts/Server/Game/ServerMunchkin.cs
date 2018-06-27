@@ -33,4 +33,15 @@ public class ServerMunchkin : MonoBehaviour {
 		for (int i = 0; i < hand.Count; i++)
 			hand[i].closeId = i;
 	}
+
+	public void setCardToSlot(string slotName, Card card) {
+		switch (slotName) {
+			case "WEAPON1": weapon1 	= card as ThingCard;	break;
+			case "WEAPON2": weapon2 	= card as ThingCard;	break;
+			case "HEAD":	head 		= card as ThingCard;	break;
+			case "ARMOR":	armor		= card as ThingCard;	break;
+			case "SHOES":	shoes		= card as ThingCard;	break;
+			case "CLASS":	munClass	= card as ClassCard;	break;
+		}
+	}
 }

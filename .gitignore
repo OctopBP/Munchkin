@@ -55,9 +55,7 @@ sysinfo.txt
 *.plist
 server.app/Contents/Resources/unity default resources
 *.tif
-server.app/*
-client1.app/*
-client2.app/*
+*.app
 Assets/TextMesh Pro/*
 *.dylib
 Packages/manifest.json

@@ -66,7 +66,7 @@ public class ExplosiveCard: Card {
 public static class CardManagerData {
 	public static List<Card> allDoorCards = new List<Card>();
     public static List<Card> allTreasureCards = new List<Card>();
-	public static List<Card> allCard = new List<Card>();
+	//public static List<Card> allCard = new List<Card>();
 }
 
 public class CardManager : MonoBehaviour {
@@ -84,8 +84,8 @@ public class CardManager : MonoBehaviour {
 			Debug.LogError(e.Message);
 		}
 
-		CardManagerData.allCard.AddRange(CardManagerData.allDoorCards);
-		CardManagerData.allCard.AddRange(CardManagerData.allTreasureCards);
+		//CardManagerData.allCard.AddRange(CardManagerData.allDoorCards);
+		//CardManagerData.allCard.AddRange(CardManagerData.allTreasureCards);
 
 		/*
 		Card closeTreasureCard = new Card {

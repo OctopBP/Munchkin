@@ -7,7 +7,7 @@ public class ServerPlayer {
 	public ServerMunchkin munchkin = new ServerMunchkin();
 }
 
-public class ServerGM : MonoBehaviour {
+public class ServerGM: MonoBehaviour {
 
 	public static ServerGM Instance { get; set; }
 
@@ -79,65 +79,69 @@ public class ServerGM : MonoBehaviour {
 	public void TryDropCard(int pNum, int cardId, string targetSlot) {
 		Card card = GetPlayerAt(pNum).munchkin.hand.Find(c => c.id == cardId);
 
-		if (card == null) // send NO
+		if (card == null) {
+			TurnDisallowed(pNum, cardId, "no card in hand");
 			return;
-		
-		if (targetSlot == "WT_MONSTER" && targetSlot == "WT_PLAYER") {
-			if (card.cardType == Card.CardType.EXPLOSIVE) {
-				if (((turnController.currentTurnStage == TurnStage.fight_player) && (turnController.CurPlayerTurnNum == pNum)) ||
-					((turnController.currentTurnStage == TurnStage.fight_enemy) && (turnController.CurPlayerTurnNum != pNum))) {
-
-					warTable.PlayCard(card, targetSlot == "WT_PLAYER");
-				}
-			}
-			else if (card.cardType == Card.CardType.LVLUP) {
-				GetCurPlayer().munchkin.LvlUp();
-			}
-
-		}
-		else {
-			if (card.cardType == Card.CardType.THING) {
-				switch (targetSlot) {
-					case "WEAPON1":
-						if ((card as ThingCard).thingType == ThingCard.ThingType.WEAPON)
-							GetPlayerAt(pNum).munchkin.weapon1 = card as ThingCard;
-						break;
-
-					case "WEAPON2":
-						if ((card as ThingCard).thingType == ThingCard.ThingType.WEAPON)
-							GetPlayerAt(pNum).munchkin.weapon2 = card as ThingCard;
-						break;
-
-					case "HEAD":
-						if ((card as ThingCard).thingType == ThingCard.ThingType.HEAD)
-							GetPlayerAt(pNum).munchkin.head = card as ThingCard;
-						break;
-
-					case "ARMOR":
-						if ((card as ThingCard).thingType == ThingCard.ThingType.ARMOR)
-							GetPlayerAt(pNum).munchkin.armor = card as ThingCard;
-						break;
-
-					case "SHOES":
-						if ((card as ThingCard).thingType == ThingCard.ThingType.SHOES)
-							GetPlayerAt(pNum).munchkin.shoes = card as ThingCard;
-						break;
-				}
-			}
-
-			if (card.cardType == Card.CardType.CLASS && targetSlot == "CLASS")
-				GetPlayerAt(pNum).munchkin.munClass = card as ClassCard;
 		}
 
+		Dictionary<string, ThingCard.ThingType> thingMap = new Dictionary<string, ThingCard.ThingType> {
+			{ "WEAPON1", ThingCard.ThingType.WEAPON },
+			{ "WEAPON2", ThingCard.ThingType.WEAPON },
+			{ "HEAD", ThingCard.ThingType.HEAD },
+			{ "ARMOR", ThingCard.ThingType.ARMOR },
+			{ "SHOES", ThingCard.ThingType.SHOES }
+		};
+
+		switch (card.cardType) {
+			case Card.CardType.EXPLOSIVE:
+				if (targetSlot == "WT_MONSTER" || targetSlot == "WT_PLAYER") {
+					if (((turnController.currentTurnStage == TurnStage.fight_player) && (turnController.CurPlayerTurnNum == pNum)) ||
+						((turnController.currentTurnStage == TurnStage.fight_enemy) && (turnController.CurPlayerTurnNum != pNum))) {
+
+						warTable.PlayCard(card, targetSlot == "WT_PLAYER");
+						TurnAllowed(pNum, card, targetSlot);
+						return;
+					}
+				}
+				break;
+
+			case Card.CardType.LVLUP:
+				if (targetSlot == "WT_MONSTER" || targetSlot == "WT_PLAYER") {
+					GetCurPlayer().munchkin.LvlUp();
+					TurnAllowed(pNum, card, targetSlot);
+					return;
+				}
+				break;
+
+			case Card.CardType.THING:
+				if (thingMap[targetSlot] == (card as ThingCard).thingType) {
+					GetPlayerAt(pNum).munchkin.setCardToSlot(targetSlot, card);
+					TurnAllowed(pNum, card, targetSlot);
+					return;
+				}
+				break;
+
+			case Card.CardType.CLASS:
+				if (targetSlot == "CLASS") {
+					GetPlayerAt(pNum).munchkin.setCardToSlot(targetSlot, card);
+					TurnAllowed(pNum, card, targetSlot);
+					return;
+				}
+				break;
+
+			case Card.CardType.MONSTER:
+				break;
+		}
+		TurnDisallowed(pNum, cardId, "reason");
 	}
 	private void TurnAllowed(int pNum, Card card, string targetSlot) {
 		GetPlayerAt(pNum).munchkin.hand.Remove(card);
 		GetPlayerAt(pNum).munchkin.SetCloseId();
 
-		Server.Instance.SendDrop(pNum, card.id, card.closeId, targetSlot);
+		Server.Instance.SendTurnAllowed(pNum, card.id, card.closeId, targetSlot);
 	}
-	private void TurnDisallowed(int pNum) {
-
+	private void TurnDisallowed(int pNum, int cardId, string reason) {
+		Server.Instance.SendTurnDisllowed(pNum, cardId, reason);
 	}
 
 
