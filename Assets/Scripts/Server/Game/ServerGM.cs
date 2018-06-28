@@ -115,8 +115,13 @@ public class ServerGM: MonoBehaviour {
 
 			case Card.CardType.THING:
 				if (thingMap[targetSlot] == (card as ThingCard).thingType) {
-					GetPlayerAt(pNum).munchkin.setCardToSlot(targetSlot, card);
-					TurnAllowed(pNum, card, targetSlot);
+					if ((turnController.currentTurnStage == TurnStage.preparation ||
+					     turnController.currentTurnStage == TurnStage.completion ||
+					     turnController.currentTurnStage == TurnStage.after_door) &&
+					     turnController.CurPlayerTurnNum == pNum) {
+						GetPlayerAt(pNum).munchkin.setCardToSlot(targetSlot, card);
+						TurnAllowed(pNum, card, targetSlot);
+					}
 					return;
 				}
 				break;
@@ -130,6 +135,14 @@ public class ServerGM: MonoBehaviour {
 				break;
 
 			case Card.CardType.MONSTER:
+				if (targetSlot == "WT_MONSTER" || targetSlot == "WT_PLAYER") {
+					if (turnController.currentTurnStage == TurnStage.after_door && turnController.CurPlayerTurnNum == pNum) {
+						warTable.StartFight(card);
+						ServerGM.Instance.turnController.MonsterPlayed();
+						TurnAllowed(pNum, card, targetSlot);
+						return;
+					}
+				}
 				break;
 		}
 		TurnDisallowed(pNum, cardId, "reason");
@@ -144,7 +157,6 @@ public class ServerGM: MonoBehaviour {
 		Server.Instance.SendTurnDisllowed(pNum, cardId, reason);
 	}
 
-
 	public void OpenDoor(out bool isMonster) {
 		isMonster = false;
 
@@ -158,7 +170,7 @@ public class ServerGM: MonoBehaviour {
 		isMonster = card.cardType == Card.CardType.MONSTER;
 
 		if (isMonster)
-			warTable.StartFight(card as MonsterCard);
+			warTable.StartFight(card);
 		else
 			warTable.OpenCard(card);
 

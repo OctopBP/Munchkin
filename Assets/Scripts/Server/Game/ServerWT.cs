@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 public class ServerWT {
 	
@@ -31,12 +30,10 @@ public class ServerWT {
 			CalculateDmg();
 		}
 	}
-
 	public void StartFight(Card monster) {
 		monsterCards.Add(monster);
 		CalculateDmg();
 	}
-
 	public void OpenCard(Card card) {
 		playerCards.Add(card);
 	}
@@ -64,7 +61,6 @@ public class ServerWT {
 
 		playerCards.RemoveAt(0);
 	}
-
 	public void ClearTable() {
 		playerDmg = 0;
 		monsterDmg = 0;

@@ -78,6 +78,7 @@ public class ClientGM: MonoBehaviour {
 			GetMunchkin(pNum).hand.RemoveCard(cardInfo);
 			freezCards.Remove(cardInfo);
 			Destroy(cardInfo.gameObject);
+			GetMunchkin(pNum).LvlUp(1); //
 			return;
 		}
 

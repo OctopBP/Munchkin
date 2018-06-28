@@ -137,11 +137,11 @@ public class Server : MonoBehaviour {
 		ServerGM.Instance.TryDropCard(pNum, cardId, targetSlot);
 	}
 	public void SendTurnAllowed(int pNum, int cardId, int closeId, string targetSlot) {
-		string msg = SendNames.dropallowew + "|" + pNum + "|" + cardId + "|" + closeId + "|" + targetSlot;
+		string msg = SendNames.dropallowed + "|" + pNum + "|" + cardId + "|" + closeId + "|" + targetSlot;
 		Send(msg, reliableChannel);
 	}
 	public void SendTurnDisllowed(int pNum, int cardId, string reason) {
-		string msg = SendNames.dropdisallowew + "|" + cardId + "|" + reason;
+		string msg = SendNames.dropdisallowed + "|" + cardId + "|" + reason;
 		Send(msg, reliableChannel, ServerGM.Instance.GetPlayerAt(pNum).info.connectionId);
 	}
 	private void EndTurn(int pNum) {

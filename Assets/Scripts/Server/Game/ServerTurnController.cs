@@ -31,9 +31,8 @@ public class ServerTurnController : MonoBehaviour {
 		if (canEndTurn)
 			ChangeTurn();
 	}
-
 	public void StatFirstTurn() {
-		turnTime = new int[] { 20, 2, 20, 20, 5, 10, 5 };
+		turnTime = new int[] { 20, 2, 15, 15, 15, 10 };
 		currentTurnStage = TurnStage.preparation;
 		turnNumber = 0;
 
@@ -41,8 +40,16 @@ public class ServerTurnController : MonoBehaviour {
 
 		StartCoroutine(TurnFunc());
 	}
+	public void MonsterPlayed() {
+		StopAllCoroutines();
 
-	IEnumerator TurnFunc() {
+		currentTurnStage = TurnStage.fight_player;
+		Server.Instance.SendChangeTurn(currentTurnStage, CurPlayerTurnNum);
+
+		StartCoroutine(TurnFunc());
+	}
+
+	private IEnumerator TurnFunc() {
 		int timeToEndTurn = turnTime[(int)currentTurnStage];
 		stageText.text = currentTurnStage.ToString();
 		playerText.text = "pNum: " + CurPlayerTurnNum;
@@ -91,7 +98,7 @@ public class ServerTurnController : MonoBehaviour {
 		StartCoroutine(TurnFunc());
 	}
 
-	void OpenDoor() {
+	private void OpenDoor() {
 		bool isMonster;
 		ServerGM.Instance.OpenDoor(out isMonster);
 
@@ -100,14 +107,12 @@ public class ServerTurnController : MonoBehaviour {
 		else
 			currentTurnStage = TurnStage.waiting;
 	}
-
-	void TakeCardFromWT() {
+	private void TakeCardFromWT() {
 		ServerGM.Instance.warTable.PlaseCardToHand(CurPlayerTurnNum);
 		Server.Instance.SendTakeCardFromWT();
 		currentTurnStage = TurnStage.after_door;
 	}
-
-	void CheckWinAfterPlayerTurn() {
+	private void CheckWinAfterPlayerTurn() {
 		if (ServerGM.Instance.warTable.PlayerCanWin) {
 			currentTurnStage = TurnStage.fight_enemy;
 		}
@@ -120,8 +125,7 @@ public class ServerTurnController : MonoBehaviour {
 		}
 		Server.Instance.SendChangeTurn(currentTurnStage, CurPlayerTurnNum);
 	}
-
-	void CheckWinAfterEnemyTurn() {
+	private void CheckWinAfterEnemyTurn() {
 		if (ServerGM.Instance.warTable.PlayerCanWin) {
 			// win
 			ServerGM.Instance.OnPlayerWinFight();
@@ -135,7 +139,6 @@ public class ServerTurnController : MonoBehaviour {
 
 		Server.Instance.SendChangeTurn(currentTurnStage, CurPlayerTurnNum);
 	}
-
 
 	/*
 	public void MonsterPlayed() {

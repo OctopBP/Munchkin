@@ -59,7 +59,6 @@ public class Client : MonoBehaviour {
 		connectionTime = Time.time;
 		isConnected = true;
 	}
-
 	public void Cancel() {
 		ClientGM.Instance.cnnCnnGroup.SetActive(true);
 		ClientGM.Instance.cnnWaitGroup.SetActive(false);
@@ -126,12 +125,12 @@ public class Client : MonoBehaviour {
 					OnNewStage(int.Parse(splitData[1]), (TurnStage)Enum.Parse(typeof(TurnStage), splitData[2]));
 					break;
 
-				case SendNames.dropallowew:
+				case SendNames.dropallowed:
 					Debug.Log("Player " + splitData[1] + " drop " + splitData[2] + " card from pos " + splitData[3] + " to: " + splitData[4]);
 					Drop(int.Parse(splitData[1]), int.Parse(splitData[2]), int.Parse(splitData[3]), splitData[4]);
 					break;
 
-				case SendNames.dropdisallowew:
+				case SendNames.dropdisallowed:
 					Debug.Log("Drop for card whith id " + int.Parse(splitData[1]) + " disallowes beacose " + splitData[2]);
 					DropDisallowed(int.Parse(splitData[1]), splitData[2]);
 					break;
@@ -219,6 +218,12 @@ public class Client : MonoBehaviour {
 		ClientGM.Instance.OpenDoor(cardId, isMonster);
 	}
 	private void OnEndFight(bool playerWin) {
+		if (playerWin)
+		if (ClientGM.Instance.turnController.playerTurn)
+			ClientGM.Instance.player.LvlUp(1); //
+		else
+			ClientGM.Instance.enemy.LvlUp(1); //
+
 		ClientGM.Instance.warTable.ClearTable();
 	}
 	private void TakeCardFromWT(int pNum) {

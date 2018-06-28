@@ -1,11 +1,6 @@
 ﻿using TMPro;
 using UnityEngine;
 
-//public class Player {
-//	public PlayerInfo info;
-//	public Munchkin munchkin;
-//}
-
 public class PlayerInfo {
 	public string name;
 	public int number;

@@ -16,9 +16,9 @@
 
 	public const string trydropcard = "TRYDROPCARD";
 
-	public const string dropallowew = "DROPALLOWED";
+	public const string dropallowed = "DROPALLOWED";
 
-	public const string dropdisallowew = "DROPDISALLOWED";
+	public const string dropdisallowed = "DROPDISALLOWED";
 
 	public const string endturn = "ENDTURN";
 

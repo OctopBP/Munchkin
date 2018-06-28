@@ -8,6 +8,8 @@ public class WarTable : MonoBehaviour {
 	public bool PlayerCanWin { get { return playerSide.dmg > monsterSide.dmg; } }
 
 	public void AddCard(CardInfo card, bool playerDS) {
+		playerDS &= card.selfCard.cardType != Card.CardType.MONSTER;
+		
 		if (playerDS)
 			playerSide.AddCard(card);
 		else

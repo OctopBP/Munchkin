@@ -13,7 +13,7 @@ public class ClientTurnController : MonoBehaviour {
 	public bool playerTurn;
 	public TurnStage currentTurnStage;
 
-	void StartGame() {
+	private void StartGame() {
 		currentTurnStage = TurnStage.preparation;
 
 		buttonText = endTurnButton.GetComponentInChildren<TextMeshProUGUI>();
@@ -22,8 +22,8 @@ public class ClientTurnController : MonoBehaviour {
 		StartCoroutine(TurnFunc());
 	}
 
-	IEnumerator TurnFunc() {
-		int[] turnTime = { 20, 2, 20, 20, 5, 10, 5 };
+	private IEnumerator TurnFunc() {
+		int[] turnTime = { 20, 2, 15, 15, 15, 10 };
 		int timeToEndTurn = turnTime[(int)currentTurnStage];
 		turnTimeText.text = timeToEndTurn.ToString();
 		//turnStageText.text = currentTurnStage.ToString();
@@ -38,7 +38,6 @@ public class ClientTurnController : MonoBehaviour {
 	public void ButtonOnPress() {
 		//SendChangeTurn();
 	}
-
 	public void ChangeTurn(TurnStage newStage, bool isPlayerTurn) {
 		StopAllCoroutines();
 
