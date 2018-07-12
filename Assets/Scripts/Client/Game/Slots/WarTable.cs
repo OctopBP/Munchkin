@@ -5,7 +5,7 @@ public class WarTable : MonoBehaviour {
 	public WarTableSide playerSide;
 	public WarTableSide monsterSide;
 
-	public bool PlayerCanWin { get { return playerSide.dmg > monsterSide.dmg; } }
+	//public bool PlayerCanWin { get { return playerSide.dmg > monsterSide.dmg; } }
 
 	public void AddCard(CardInfo card, bool playerDS) {
 		playerDS &= card.selfCard.cardType != Card.CardType.MONSTER;

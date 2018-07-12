@@ -60,3 +60,5 @@ Assets/TextMesh Pro/*
 *.dylib
 Packages/manifest.json
 ProjectSettings/ProjectVersion.txt
+*.anim
+*.controller

@@ -4,9 +4,17 @@
       "id": 163,
       "cardType": 4,
       "deckType": 1,
-      "name": "Nuke Grenade",
+      "name": "Nuke-Grenade",
       "texName": "Explosives/NukeGrenade",
       "dmg": 5
+    },
+    {
+      "id": 164,
+      "cardType": 4,
+      "deckType": 1,
+      "name": "Frag Grenade",
+      "texName": "Explosives/FragGrenade",
+      "dmg": 2
     },
     {
       "id": 165,
@@ -15,6 +23,14 @@
       "name": "Plasma Grenade",
       "texName": "Explosives/PlasmaGrenade",
       "dmg": 3
+    },
+    {
+      "id": 166,
+      "cardType": 4,
+      "deckType": 1,
+      "name": "Nuke Mine",
+      "texName": "Explosives/PlasmaMine",
+      "dmg": 4
     }
   ]
 }

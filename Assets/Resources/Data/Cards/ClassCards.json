@@ -5,28 +5,32 @@
       "cardType": 1,
       "deckType": 0,
       "name": "Lone Wanderer",
-      "texName": "Classes/LoneWanderer"
+      "texName": "Classes/LoneWanderer",
+      "className": 0
     },
     {
       "id": 4,
       "cardType": 1,
       "deckType": 0,
       "name": "Brotherhood Paladin",
-      "texName": "Classes/BrotherhoodPaladin"
+      "texName": "Classes/BrotherhoodPaladin",
+      "className": 1
     },
     {
       "id": 8,
       "cardType": 1,
       "deckType": 0,
       "name": "Raider",
-      "texName": "Classes/Raider"
+      "texName": "Classes/Raider",
+      "className": 2
     },
     {
       "id": 12,
       "cardType": 1,
       "deckType": 0,
       "name": "Enclave Scientist",
-      "texName": "Classes/EnclaveScientist"
+      "texName": "Classes/EnclaveScientist",
+      "className": 3
     }
   ]
 }

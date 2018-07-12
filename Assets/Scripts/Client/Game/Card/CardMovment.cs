@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class CardMovment : MonoBehaviour {
@@ -95,6 +96,8 @@ public class CardMovment : MonoBehaviour {
 		ResetPosition();
     }
 	private void OnMouseExit() {
+		StopAllCoroutines();
+
 		if (cardFreezed)
 			return;
 		
@@ -111,12 +114,11 @@ public class CardMovment : MonoBehaviour {
 		float k = distanceToCamera / (Camera.main.transform.position.y - basePosition.y);
 
 		Vector3 hoverPosition;
-		//hoverPosition.x = k * basePosition.x;
 		hoverPosition.x = Mathf.Min(Mathf.Max(k * basePosition.x, -xLimit), xLimit);
 		hoverPosition.y = Camera.main.transform.position.y - distanceToCamera;
 		hoverPosition.z = Mathf.Min(Mathf.Max(k * transform.position.z, -zLimit), zLimit);
 
-		transform.position = hoverPosition;
+		MoveTo(hoverPosition, 0.1f);
 		transform.eulerAngles = new Vector3(0, 0, 0);
 	}
 
@@ -144,11 +146,32 @@ public class CardMovment : MonoBehaviour {
         basePosition = transform.position;
         baseAngles = transform.eulerAngles;
     }
+
+	// Обеденить Animate и MoveTo
 	public void Animate(Vector3 targetPos, Vector3 targetAngles) {
 		WriteNewPosition(targetPos, targetAngles);
-		transform.position = targetPos;
+
+		MoveTo(targetPos, 0.3f);
+		//transform.position = targetPos;
 		transform.eulerAngles = targetAngles;
 		//animator.MoveTo(transform.position, targetPos, transform.eulerAngles, targetAngles);
 		//WriteNewPosition(targetPos, targetAngles);
+	}
+	public void MoveTo(Vector3 targetPos, float time) {
+		StopAllCoroutines();
+		StartCoroutine(MoveToPos(targetPos, time));
+	}
+
+	private IEnumerator MoveToPos(Vector3 targetPosition, float t) {
+		float time = t;
+		Vector3 velocity = Vector3.zero;
+
+		while (transform.position != targetPosition) {
+			Vector3 newPosition = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, t);
+			transform.position = newPosition;
+
+			yield return new WaitForFixedUpdate();
+		}
+		transform.position = targetPosition;
 	}
 }

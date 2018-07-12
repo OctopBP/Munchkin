@@ -24,6 +24,7 @@
       "deckType": 1,
       "name": "Slasher Knife",
       "texName": "Things/SlasherKnife",
+      "restriction": [ 0, 2, 3, 4 ],
       "bonus": 1,
       "thingType": 0
     },
@@ -69,6 +70,7 @@
       "deckType": 1,
       "name": "Raider Wastehound Helmet",
       "texName": "Things/RaiderWastehoundHelmet",
+      "restriction": [ 2 ],
       "bonus": 3,
       "thingType": 1
     }

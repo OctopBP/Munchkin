@@ -107,7 +107,7 @@ public class ServerGM: MonoBehaviour {
 
 			case Card.CardType.LVLUP:
 				if (targetSlot == "WT_MONSTER" || targetSlot == "WT_PLAYER") {
-					GetCurPlayer().munchkin.LvlUp();
+					warTable.PlayCard(card, true);
 					TurnAllowed(pNum, card, targetSlot);
 					return;
 				}
@@ -119,10 +119,26 @@ public class ServerGM: MonoBehaviour {
 					     turnController.currentTurnStage == TurnStage.completion ||
 					     turnController.currentTurnStage == TurnStage.after_door) &&
 					     turnController.CurPlayerTurnNum == pNum) {
-						GetPlayerAt(pNum).munchkin.setCardToSlot(targetSlot, card);
-						TurnAllowed(pNum, card, targetSlot);
+
+						if (GetPlayerAt(pNum).munchkin.munClass == null) {
+							foreach (int i in (card as ThingCard).restriction) {
+								if (i == 4) {
+									GetPlayerAt(pNum).munchkin.setCardToSlot(targetSlot, card);
+									TurnAllowed(pNum, card, targetSlot);
+									return;
+								}
+							}
+						}
+						else {
+							foreach (int i in (card as ThingCard).restriction) {
+								if (i == (int)GetPlayerAt(pNum).munchkin.munClass.className) {
+									GetPlayerAt(pNum).munchkin.setCardToSlot(targetSlot, card);
+									TurnAllowed(pNum, card, targetSlot);
+									return;
+								}
+							}
+						}
 					}
-					return;
 				}
 				break;
 
@@ -137,8 +153,7 @@ public class ServerGM: MonoBehaviour {
 			case Card.CardType.MONSTER:
 				if (targetSlot == "WT_MONSTER" || targetSlot == "WT_PLAYER") {
 					if (turnController.currentTurnStage == TurnStage.after_door && turnController.CurPlayerTurnNum == pNum) {
-						warTable.StartFight(card);
-						ServerGM.Instance.turnController.MonsterPlayed();
+						warTable.PlayCard(card, false);
 						TurnAllowed(pNum, card, targetSlot);
 						return;
 					}

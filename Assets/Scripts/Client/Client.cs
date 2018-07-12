@@ -20,7 +20,6 @@ public class Client : MonoBehaviour {
 	private int connectionId;
 
 	private int reliableChannel;
-	//private int unreliableChannel;
 
 	private float connectionTime;
 	private bool isConnected = false;
@@ -49,7 +48,6 @@ public class Client : MonoBehaviour {
 		ConnectionConfig cc = new ConnectionConfig();
 
 		reliableChannel = cc.AddChannel(QosType.Reliable);
-		//unreliableChannel = cc.AddChannel(QosType.Unreliable);
 
 		HostTopology topo = new HostTopology(cc, MAX_CONNECTION);
 
@@ -69,8 +67,12 @@ public class Client : MonoBehaviour {
 	}
 
 	private void Update() {
-		if (!isConnected)
+		if (!isConnected) {
+			if (Input.GetKeyDown(KeyCode.Return))
+				Connect();
+			
 			return;
+		}
 
 		int recHostId;
 		int cnnId;

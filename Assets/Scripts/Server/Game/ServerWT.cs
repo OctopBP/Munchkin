@@ -11,15 +11,16 @@ public class ServerWT {
 	public bool PlayerCanWin { get { return playerDmg > monsterDmg; } }
 
 	public void PlayCard(Card card, bool playerDS) {
-		//if (card.typeIs(Card.CardType.LVLUP)) {
-		//	gameManager.player.LvlUp();
-		//	return;
-		//}
+		if (card.cardType == Card.CardType.LVLUP) {
+			ServerGM.Instance.GetCurPlayer().munchkin.LvlUp(1);
+			return;
+		}
 
-		//if (card.typeIs(Card.CardType.MONSTER) && gameManager.CurrentTS_Is(TurnStage.after_door)) {
-		//	//gameManager.turnController.MonsterPlayed();
-		//	AddCard(card, false);
-		//}
+		if (card.cardType == Card.CardType.MONSTER) {
+			StartFight(card);
+			ServerGM.Instance.turnController.MonsterPlayed();
+			return;
+		}
 
 		if (card.cardType == Card.CardType.EXPLOSIVE) {
 			if (playerDS)

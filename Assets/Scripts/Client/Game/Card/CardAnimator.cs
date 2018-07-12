@@ -58,4 +58,8 @@ public class CardAnimator : MonoBehaviour {
 
 		//GetComponent<CardMovment>().WriteNewPosition();
 	}
+
+	public void ToHand() {
+		
+	}
 }
