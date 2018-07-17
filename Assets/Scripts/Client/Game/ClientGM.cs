@@ -32,11 +32,11 @@ public class ClientGM: MonoBehaviour {
 		turnController = GetComponent<ClientTurnController>();
     }
 
+	private Vector3 deckPos = new Vector3(6.6f, 0.8f, 0);
 	public CardInfo CreateCard(HidenCard.DeckType deckType) {
 		HidenCard hidenCard = new HidenCard();;
 		hidenCard.deckType = deckType;
 
-		Vector3 deckPos = new Vector3(6.6f, 0.8f, 0);
 		Quaternion deckQuat = Quaternion.identity;
 		deckQuat.eulerAngles = new Vector3(0, 90, 180);
 
@@ -51,7 +51,6 @@ public class ClientGM: MonoBehaviour {
 	public CardInfo CreateCard(int cardId) {
 		Card card = GetCard(cardId);
 
-		Vector3 deckPos = new Vector3(6.6f, 0.8f, 0);
 		Quaternion deckQuat = Quaternion.identity;
 		deckQuat.eulerAngles = new Vector3(0, 90, 180);
 

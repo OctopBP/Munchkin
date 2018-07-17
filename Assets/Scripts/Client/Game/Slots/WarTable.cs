@@ -5,8 +5,6 @@ public class WarTable : MonoBehaviour {
 	public WarTableSide playerSide;
 	public WarTableSide monsterSide;
 
-	//public bool PlayerCanWin { get { return playerSide.dmg > monsterSide.dmg; } }
-
 	public void AddCard(CardInfo card, bool playerDS) {
 		playerDS &= card.selfCard.cardType != Card.CardType.MONSTER;
 		
@@ -15,7 +13,6 @@ public class WarTable : MonoBehaviour {
 		else
 			monsterSide.AddCard(card);
 	}
-
 	public void StartFight(CardInfo monster) {
 		AddCard(monster, false);
 		//CalculateDmg();
@@ -29,6 +26,26 @@ public class WarTable : MonoBehaviour {
 	public void ClearTable() {
 		playerSide.ClearSide();
 		monsterSide.ClearSide();
+	}
+
+	public void CalculateDmg() {
+		monsterSide.dmg = 0;
+		foreach (CardInfo card in monsterSide.cards) {
+			if (card.typeIs(Card.CardType.MONSTER))
+				monsterSide.dmg += (card.selfCard as MonsterCard).lvl;
+			else
+				monsterSide.dmg += (card.selfCard as ExplosiveCard).dmg;
+		}
+
+		bool curPlayerSide = ClientGM.Instance.turnController.playerTurn;
+		playerSide.dmg = curPlayerSide ? ClientGM.Instance.player.damage : ClientGM.Instance.enemy.damage;
+		foreach (CardInfo card in playerSide.cards) {
+			if (card.typeIs(Card.CardType.EXPLOSIVE))
+				playerSide.dmg += (card.selfCard as ExplosiveCard).dmg;
+		}
+
+		monsterSide.dmgText.text = monsterSide.dmg.ToString();
+		playerSide.dmgText.text = playerSide.dmg.ToString();
 	}
 
 	/*
@@ -52,25 +69,6 @@ public class WarTable : MonoBehaviour {
 	}
 
 
-
-	public void CalculateDmg() {
-		monsterSide.dmg = 0;
-		foreach (CardInfo card in monsterSide.cards) {
-			if (card.typeIs(Card.CardType.MONSTER))
-				monsterSide.dmg += (card.selfCard as MonsterCard).lvl;
-			else
-				monsterSide.dmg += (card.selfCard as ExplosiveCard).dmg;
-		}
-
-		playerSide.dmg = gameManager.player.damage;
-		foreach (CardInfo card in playerSide.cards) {
-			if (card.typeIs(Card.CardType.EXPLOSIVE))
-				playerSide.dmg += (card.selfCard as ExplosiveCard).dmg;
-		}
-
-		monsterSide.dmgText.text = monsterSide.dmg.ToString();
-		playerSide.dmgText.text = playerSide.dmg.ToString();
-	}
 
 	// TODO: Remove from Update()
 	void Update() {

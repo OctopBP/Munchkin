@@ -9,7 +9,7 @@ public class CardMovment : MonoBehaviour {
 	[HideInInspector] public Transform defaultParent;
 
 	[HideInInspector] public CardInfo cardInfo;
-	//[HideInInspector] public CardAnimator animator;
+	[HideInInspector] public CardAnimator animator;
 
 	private Vector3 basePosition;
 	private Vector3 baseAngles;
@@ -25,7 +25,7 @@ public class CardMovment : MonoBehaviour {
 
 	private void Awake() {
 		cardInfo = GetComponent<CardInfo>();
-		//animator = GetComponent<CardAnimator>();
+		animator = GetComponent<CardAnimator>();
 
 		border.enabled = false;
 		cardActive = true;
@@ -118,8 +118,7 @@ public class CardMovment : MonoBehaviour {
 		hoverPosition.y = Camera.main.transform.position.y - distanceToCamera;
 		hoverPosition.z = Mathf.Min(Mathf.Max(k * transform.position.z, -zLimit), zLimit);
 
-		MoveTo(hoverPosition, 0.1f);
-		transform.eulerAngles = new Vector3(0, 0, 0);
+		animator.Animate(hoverPosition, Vector3.zero, 0.1f);
 	}
 
 	public void UndoDrop() {
@@ -146,32 +145,4 @@ public class CardMovment : MonoBehaviour {
         basePosition = transform.position;
         baseAngles = transform.eulerAngles;
     }
-
-	// Обеденить Animate и MoveTo
-	public void Animate(Vector3 targetPos, Vector3 targetAngles) {
-		WriteNewPosition(targetPos, targetAngles);
-
-		MoveTo(targetPos, 0.3f);
-		//transform.position = targetPos;
-		transform.eulerAngles = targetAngles;
-		//animator.MoveTo(transform.position, targetPos, transform.eulerAngles, targetAngles);
-		//WriteNewPosition(targetPos, targetAngles);
-	}
-	public void MoveTo(Vector3 targetPos, float time) {
-		StopAllCoroutines();
-		StartCoroutine(MoveToPos(targetPos, time));
-	}
-
-	private IEnumerator MoveToPos(Vector3 targetPosition, float t) {
-		float time = t;
-		Vector3 velocity = Vector3.zero;
-
-		while (transform.position != targetPosition) {
-			Vector3 newPosition = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, t);
-			transform.position = newPosition;
-
-			yield return new WaitForFixedUpdate();
-		}
-		transform.position = targetPosition;
-	}
 }

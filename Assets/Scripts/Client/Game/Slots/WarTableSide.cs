@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ public class WarTableSide : MonoBehaviour {
 	public float SPASE;
 
 	public List<CardInfo> cards;
-	//public int dmg = 0;
+	public int dmg = 0;
 
 	void Awake() {
 		cards = new List<CardInfo>();
@@ -22,29 +23,47 @@ public class WarTableSide : MonoBehaviour {
 		cards.Add(card);
 
 		PlaceCards();
-
-		card.cardMovment.WriteNewPosition();
 	}
 
 	private void PlaceCards() {
 		int i = 0;
 		foreach (CardInfo card in cards) {
+			Vector3 newAngl = new Vector3(0, Random.Range(-10, 10), 0);
 			Vector3 newPos = plasePos;
 			newPos.x += i * SPASE - ((cards.Count - 1) * SPASE / 2);
-			card.transform.position = newPos;
+
+			card.cardMovment.animator.Animate(newPos, newAngl, 0.2f);
+			card.cardMovment.WriteNewPosition();
+
 			i++;
 		}
 	}
 
 	public void ClearSide() {
 		foreach (CardInfo card in cards)
+			//StartCoroutine(DestroyCard(card));
 			Destroy(card.gameObject);
 		
 		cards.Clear();
 	}
 
-	//public void DestroyAllCards() {
-	//	foreach (CardInfo card in cards)
-	//		Destroy(card.gameObject);
-	//}
+	private IEnumerator DestroyCard(CardInfo card) {
+		float t = 0.4f;
+
+		Vector3 velocity = Vector3.zero;
+		Vector3 targetPosition = new Vector3(-15, 3, 0);
+		Vector3 targetAngles = Vector3.zero;
+
+		while (card.transform.position != targetPosition) {
+			Vector3 newPosition = Vector3.SmoothDamp(card.transform.position, targetPosition, ref velocity, t);
+			Vector3 newAngles = Vector3.SmoothDamp(card.transform.eulerAngles, targetAngles, ref velocity, t);
+
+			card.transform.position = newPosition;
+			card.transform.eulerAngles = newAngles;
+
+			yield return new WaitForFixedUpdate();
+		}
+
+		Destroy(card.gameObject);
+	}
 }

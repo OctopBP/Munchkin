@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 
 public class CardActivity : MonoBehaviour {
-	
+
+	// Disabled
+
 	public void SetCardActivity(TurnStage turnStage, CardInfo card) {
 		bool active = true;
 
