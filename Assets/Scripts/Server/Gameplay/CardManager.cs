@@ -21,7 +21,8 @@ using UnityEngine;
 		CLASS,
 		LVLUP,
 		THING,
-		EXPLOSIVE
+		EXPLOSIVE,
+		TRAP
 	}
 
 	public string name;
@@ -57,6 +58,9 @@ using UnityEngine;
 [Serializable] public class ExplosiveCard: Card {
 	public int dmg;
 }
+[Serializable] public class TrapCard: Card {
+	public string ability;
+}
 
 public static class CardManagerData {
 	public static List<Card> allDoorCards = new List<Card>();
@@ -69,6 +73,7 @@ public class CardManager : MonoBehaviour {
 		try {
 			CardManagerData.allDoorCards.AddRange(JsonReader.ReadJson<MonsterCard>("MonsterCards"));
 			CardManagerData.allDoorCards.AddRange(JsonReader.ReadJson<ClassCard>("ClassCards"));
+			CardManagerData.allDoorCards.AddRange(JsonReader.ReadJson<TrapCard>("TrapCards"));
 
 			CardManagerData.allTreasureCards.AddRange(JsonReader.ReadJson<LvlupCard>("LvlupCards"));
 			CardManagerData.allTreasureCards.AddRange(JsonReader.ReadJson<ThingCard>("ThingCards"));

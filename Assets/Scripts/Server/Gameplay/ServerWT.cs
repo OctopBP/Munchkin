@@ -4,6 +4,7 @@ public class ServerWT {
 	
 	private readonly List<Card> playerCards = new List<Card>();
 	private readonly List<Card> monsterCards = new List<Card>();
+	// TODO: Add Card Slot waiting Card
 
 	public int playerDmg = 0;
 	public int monsterDmg = 0;
@@ -78,6 +79,10 @@ public class ServerWT {
 				number += (card as MonsterCard).numberOfTreasure;
 
 		return number;
+	}
+
+	public Card GetCardInWT() {
+		return playerCards[0];
 	}
 
 	/*

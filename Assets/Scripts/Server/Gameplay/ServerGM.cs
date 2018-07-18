@@ -85,11 +85,11 @@ public class ServerGM: MonoBehaviour {
 		}
 
 		Dictionary<string, ThingCard.ThingType> thingMap = new Dictionary<string, ThingCard.ThingType> {
-			{ "WEAPON1", ThingCard.ThingType.WEAPON },
-			{ "WEAPON2", ThingCard.ThingType.WEAPON },
-			{ "HEAD", ThingCard.ThingType.HEAD },
-			{ "ARMOR", ThingCard.ThingType.ARMOR },
-			{ "SHOES", ThingCard.ThingType.SHOES }
+			{ "WEAPON1",	ThingCard.ThingType.WEAPON	},
+			{ "WEAPON2",	ThingCard.ThingType.WEAPON	},
+			{ "HEAD",		ThingCard.ThingType.HEAD	},
+			{ "ARMOR",		ThingCard.ThingType.ARMOR	},
+			{ "SHOES",		ThingCard.ThingType.SHOES	}
 		};
 
 		switch (card.cardType) {

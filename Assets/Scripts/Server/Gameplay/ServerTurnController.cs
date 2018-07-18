@@ -72,7 +72,7 @@ public class ServerTurnController : MonoBehaviour {
 				break;
 
 			case TurnStage.waiting:
-				TakeCardFromWT();
+				AfterWait();
 				break;
 
 			case TurnStage.after_door:
@@ -107,9 +107,18 @@ public class ServerTurnController : MonoBehaviour {
 		else
 			currentTurnStage = TurnStage.waiting;
 	}
-	private void TakeCardFromWT() {
-		ServerGM.Instance.warTable.PlaseCardToHand(CurPlayerTurnNum);
-		Server.Instance.SendTakeCardFromWT();
+	private void AfterWait() {
+		// TODO: to ServerWT mb
+		if (ServerGM.Instance.warTable.GetCardInWT().cardType == Card.CardType.CLASS) {
+			ServerGM.Instance.warTable.PlaseCardToHand(CurPlayerTurnNum);
+			Server.Instance.SendTakeCardFromWT();
+		} else {
+			CardAbilitys.Instance.Invoke((ServerGM.Instance.warTable.GetCardInWT() as TrapCard).ability, 0);
+			ServerGM.Instance.warTable.ClearTable();
+
+			Server.Instance.SendChangeTurn(TurnStage.after_door, CurPlayerTurnNum);
+		}
+
 		currentTurnStage = TurnStage.after_door;
 	}
 	private void CheckWinAfterPlayerTurn() {

@@ -96,7 +96,8 @@ public class CardMovment : MonoBehaviour {
 		ResetPosition();
     }
 	private void OnMouseExit() {
-		StopAllCoroutines();
+		animator.StopAllCoroutines();
+		//StopAllCoroutines();
 
 		if (cardFreezed)
 			return;

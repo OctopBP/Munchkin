@@ -28,4 +28,6 @@
 
 	public const string takecardfromwt = "TAKEWTCARD";
 
+	public const string removecard = "REMOVECARD";
+
 }

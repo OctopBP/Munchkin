@@ -4,6 +4,8 @@ using UnityEngine;
 public class CardAnimator: MonoBehaviour {
 
 	public void Animate(Vector3 targetPos, Vector3 targetAngles, float time) {
+		transform.eulerAngles = targetAngles;
+
 		StopAllCoroutines();
 		StartCoroutine(MoveToPos(targetPos, targetAngles, time));
 	}
@@ -19,7 +21,5 @@ public class CardAnimator: MonoBehaviour {
 
 			yield return new WaitForFixedUpdate();
 		}
-
-		transform.eulerAngles = targetAngles;
 	}
 }

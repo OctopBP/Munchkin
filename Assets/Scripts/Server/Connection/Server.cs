@@ -133,9 +133,11 @@ public class Server : MonoBehaviour {
 			ServerGM.Instance.StarGame();
 		}
 	}
+
 	private void TryDrop(int pNum, int cardId, string targetSlot) {
 		ServerGM.Instance.TryDropCard(pNum, cardId, targetSlot);
 	}
+
 	public void SendTurnAllowed(int pNum, int cardId, int closeId, string targetSlot) {
 		string msg = SendNames.dropallowed + "|" + pNum + "|" + cardId + "|" + closeId + "|" + targetSlot;
 		Send(msg, reliableChannel);
@@ -144,6 +146,7 @@ public class Server : MonoBehaviour {
 		string msg = SendNames.dropdisallowed + "|" + cardId + "|" + reason;
 		Send(msg, reliableChannel, ServerGM.Instance.GetPlayerAt(pNum).info.connectionId);
 	}
+
 	private void EndTurn(int pNum) {
 		ServerGM.Instance.turnController.TryChangeTurn(pNum);
 	}
@@ -153,7 +156,7 @@ public class Server : MonoBehaviour {
 		SendCardToPlayerHand(ServerGM.Instance.player1, pNum, card);
 		SendCardToPlayerHand(ServerGM.Instance.player2, pNum, card);
 	}
-	private void SendCardToPlayerHand(ServerPlayer player,  int pNum, Card card) {
+	private void SendCardToPlayerHand(ServerPlayer player, int pNum, Card card) {
 		int cardId = player.info.number == pNum ? card.id : 0;
 		string msg = SendNames.cardtohand + "|" + pNum + "|" + card.deckType + "|" + cardId;
 
@@ -180,6 +183,11 @@ public class Server : MonoBehaviour {
 	}
 	public void SendTakeCardFromWT() {
 		string msg = SendNames.takecardfromwt + "|" + ServerGM.Instance.turnController.CurPlayerTurnNum;
+		Send(msg, reliableChannel);
+	}
+
+	public void SendRemoveCard(int pNum, string cardSlot) {
+		string msg = SendNames.removecard + "|" + pNum + "|" + cardSlot;
 		Send(msg, reliableChannel);
 	}
 

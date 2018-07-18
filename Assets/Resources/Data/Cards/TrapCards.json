@@ -1,0 +1,28 @@
+﻿{
+  "cards": [
+    {
+      "id": 21,
+      "cardType": 5,
+      "deckType": 0,
+      "ability": "_TrapPoisoning",
+      "name": "Trap! Poisoning",
+      "texName": "Trap/TrapPoisoning"
+    },
+    {
+      "id": 26,
+      "cardType": 5,
+      "deckType": 0,
+      "ability": "_TrapRadioactivityPuddles",
+      "name": "Trap! Radioactivity Puddles",
+      "texName": "Trap/TrapRadioactivityPuddles"
+    },
+    {
+      "id": 28,
+      "cardType": 5,
+      "deckType": 0,
+      "ability": "_TrapConcussion",
+      "name": "Trap! Concussion",
+      "texName": "Trap/TrapConcussion"
+    }
+  ]
+}

@@ -137,6 +137,10 @@ public class Client : MonoBehaviour {
 					DropDisallowed(int.Parse(splitData[1]), splitData[2]);
 					break;
 
+				case SendNames.removecard:
+					RemoveCard(int.Parse(splitData[1]), splitData[2]);
+					break;
+
 				default:
 					Debug.Log("Invalid message: " + msg);
 					break;
@@ -196,15 +200,25 @@ public class Client : MonoBehaviour {
 
 		ClientGM.Instance.GetMunchkin(pNum).hand.AddCard(cardInfo);
 	}
+	private void RemoveCard(int pNum, string cardSlot) {
+		ClientGM.Instance.RemoveCard(pNum, cardSlot);
+	}
+
 	private void OnNewStage(int turnClientNumber, TurnStage turnStage) {
+		// just for now
+		// TODO: Remove
+		ClientGM.Instance.warTable.ClearTable();
+
 		ClientGM.Instance.turnController.ChangeTurn(turnStage, ClientGM.Instance.player.info.number == turnClientNumber);
 	}
+
 	private void Drop(int pNum, int cardId, int closId, string targetSlot) {
 		ClientGM.Instance.Drop(pNum, cardId, closId, targetSlot);
 	}
 	private void DropDisallowed(int cardId, string reason) {
 		ClientGM.Instance.DropDisallowed(cardId, reason);
 	}
+
 	private void OpenDoor(string[] data) {
 		int pNum = int.Parse(data[1]);
 		int cardId = int.Parse(data[2]);
@@ -219,6 +233,7 @@ public class Client : MonoBehaviour {
 
 		ClientGM.Instance.OpenDoor(cardId, isMonster);
 	}
+
 	private void OnEndFight(bool playerWin) {
 		if (playerWin)
 		if (ClientGM.Instance.turnController.playerTurn)
@@ -228,6 +243,7 @@ public class Client : MonoBehaviour {
 
 		ClientGM.Instance.warTable.ClearTable();
 	}
+
 	private void TakeCardFromWT(int pNum) {
 		ClientGM.Instance.warTable.PlaseCardToHand(pNum);
 		ClientGM.Instance.turnController.ChangeTurn(TurnStage.after_door, ClientGM.Instance.player.info.number == pNum);

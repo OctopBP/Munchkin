@@ -100,6 +100,16 @@ public class ClientGM: MonoBehaviour {
 	public void DropDisallowed(int cardId, string reason) {
 		freezCards.Find(c => c.selfCard.id == cardId).cardMovment.UndoDrop();
 	}
+	public void RemoveCard(int pNum, string cardSlot) {
+		switch (cardSlot) {
+			case "WEAPON1": GetMunchkin(pNum).weapon1.RemoveCard();		break;
+			case "WEAPON2": GetMunchkin(pNum).weapon2.RemoveCard();		break;
+			case "HEAD":	GetMunchkin(pNum).head.RemoveCard();		break;
+			case "ARMOR":	GetMunchkin(pNum).armor.RemoveCard();		break;
+			case "SHOES":	GetMunchkin(pNum).shoes.RemoveCard();		break;
+			case "CLASS":	GetMunchkin(pNum).munClass.RemoveCard();	break;
+		}
+	}
 
 	public void OpenDoor(int cardId, bool isMonster) {
 		CardInfo cardInfo = CreateCard(cardId);
