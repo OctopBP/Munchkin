@@ -207,7 +207,8 @@ public class Client : MonoBehaviour {
 	private void OnNewStage(int turnClientNumber, TurnStage turnStage) {
 		// just for now
 		// TODO: Remove
-		ClientGM.Instance.warTable.ClearTable();
+		if (turnStage != TurnStage.fight_enemy && turnStage != TurnStage.fight_player)
+			ClientGM.Instance.warTable.ClearTable();
 
 		ClientGM.Instance.turnController.ChangeTurn(turnStage, ClientGM.Instance.player.info.number == turnClientNumber);
 	}

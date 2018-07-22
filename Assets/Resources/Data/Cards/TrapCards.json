@@ -4,25 +4,37 @@
       "id": 21,
       "cardType": 5,
       "deckType": 0,
-      "ability": "_TrapPoisoning",
       "name": "Trap! Poisoning",
-      "texName": "Trap/TrapPoisoning"
+      "texName": "Trap/TrapPoisoning",
+      "ability": "_TrapPoisoning",
+      "trapType": 0
+    },
+    {
+      "id": 24,
+      "cardType": 5,
+      "deckType": 0,
+      "name": "Trap! Torn Backpack",
+      "texName": "Trap/TrapTornBackpack",
+      "ability": "_TrapTornBackpack",
+      "trapType": 0
     },
     {
       "id": 26,
       "cardType": 5,
       "deckType": 0,
-      "ability": "_TrapRadioactivityPuddles",
       "name": "Trap! Radioactivity Puddles",
-      "texName": "Trap/TrapRadioactivityPuddles"
+      "texName": "Trap/TrapRadioactivityPuddles",
+      "ability": "_TrapRadioactivityPuddles",
+      "trapType": 0
     },
     {
       "id": 28,
       "cardType": 5,
       "deckType": 0,
-      "ability": "_TrapConcussion",
       "name": "Trap! Concussion",
-      "texName": "Trap/TrapConcussion"
+      "texName": "Trap/TrapConcussion",
+      "ability": "_TrapConcussion",
+      "trapType": 0
     }
   ]
 }

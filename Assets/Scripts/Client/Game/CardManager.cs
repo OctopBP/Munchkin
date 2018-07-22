@@ -60,6 +60,12 @@ using UnityEngine;
 }
 [Serializable] public class TrapCard: Card {
 	public string ability;
+
+	public TrapType trapType;
+	public enum TrapType {
+		INSTANTLY,
+		EFFECT
+	}
 }
 
 public static class CardManagerData {

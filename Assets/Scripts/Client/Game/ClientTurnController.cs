@@ -3,6 +3,15 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum TurnStage {
+	preparation,
+	waiting,
+	after_door,
+	fight_player,
+	fight_enemy,
+	completion
+}
+
 public class ClientTurnController : MonoBehaviour {
 
 	public TextMeshProUGUI turnTimeText;

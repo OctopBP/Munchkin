@@ -17,4 +17,9 @@ public static class MyExtensions {
         list[i] = list[j];
         list[j] = item;
     }
+
+	public static void AddIfNotNull<T>(this List<T> list, T t) {
+		if (t != null)
+			list.Add(t);
+	}
 }
