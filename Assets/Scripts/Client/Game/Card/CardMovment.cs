@@ -33,7 +33,7 @@ public class CardMovment : MonoBehaviour {
     }
 
 	private void OnMouseOver() {
-		if (cardFreezed)
+		if (cardFreezed || animator.moving)
 			return;
 		
 		defaultParent = transform.parent;
@@ -57,7 +57,7 @@ public class CardMovment : MonoBehaviour {
 		// TODO: Hover down
 	}
 	private void OnMouseDrag() {
-		if (!isYourCard || !cardActive || cardFreezed)
+		if (!isYourCard || !cardActive || cardFreezed || animator.moving)
 			return;
 
 		Vector3 distanceToScreen = Camera.main.WorldToScreenPoint(transform.position);
@@ -68,7 +68,7 @@ public class CardMovment : MonoBehaviour {
 		// Если parent рука и находимся в пределах руки при перетаскивании меняем карты местами
 	}
 	private void OnMouseUp() {
-		if (!isYourCard || !cardActive || cardFreezed)
+		if (!isYourCard || !cardActive || cardFreezed || animator.moving)
 			return;
 		
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -87,7 +87,7 @@ public class CardMovment : MonoBehaviour {
 					string targetSlotName = Enum.GetName(typeof(DropSlotType), targetSlot.dropSlotType);
 
 					Client.Instance.OnDrop(cardInfo.selfCard, targetSlotName);
-					ClientGM.Instance.freezCards.Add(cardInfo);
+					GameManager.Instance.freezCards.Add(cardInfo);
 					cardFreezed = true;
 					return;
 				}
@@ -97,7 +97,7 @@ public class CardMovment : MonoBehaviour {
     }
 	private void OnMouseExit() {
 		animator.StopAllCoroutines();
-		//StopAllCoroutines();
+		animator.moving = false;
 
 		if (cardFreezed)
 			return;
@@ -119,7 +119,7 @@ public class CardMovment : MonoBehaviour {
 		hoverPosition.y = Camera.main.transform.position.y - distanceToCamera;
 		hoverPosition.z = Mathf.Min(Mathf.Max(k * transform.position.z, -zLimit), zLimit);
 
-		animator.Animate(hoverPosition, Vector3.zero, 0.1f);
+		animator.MoveTo(hoverPosition, Vector3.zero, 0.1f);
 	}
 
 	public void UndoDrop() {

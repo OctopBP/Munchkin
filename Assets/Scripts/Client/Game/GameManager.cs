@@ -2,9 +2,9 @@
 using TMPro;
 using System.Collections.Generic;
 
-public class ClientGM: MonoBehaviour {
+public class GameManager: MonoBehaviour {
 
-	public static ClientGM Instance { get; set; }
+	public static GameManager Instance { get; set; }
 
 	public Munchkin player = new Munchkin();
 	public Munchkin enemy = new Munchkin();
@@ -18,7 +18,7 @@ public class ClientGM: MonoBehaviour {
 	public List<CardInfo> freezCards = new List<CardInfo>();
 
     public GameObject cardPrefab;
-	public ClientTurnController turnController;
+	public TurnController turnController;
 
 	public GameObject cnnCanvas;
 	public GameObject cnnCnnGroup;
@@ -29,7 +29,7 @@ public class ClientGM: MonoBehaviour {
 	private void Awake() {
 		Instance = this;
 
-		turnController = GetComponent<ClientTurnController>();
+		turnController = GetComponent<TurnController>();
     }
 
 	private Vector3 deckPos = new Vector3(6.6f, 0.8f, 0);
@@ -49,7 +49,7 @@ public class ClientGM: MonoBehaviour {
 		return cardInfo;
 	}
 	public CardInfo CreateCard(int cardId) {
-		Card card = GetCard(cardId);
+		Card card = CardManagerData.allCards.Find(c => c.id == cardId);
 
 		Quaternion deckQuat = Quaternion.identity;
 		deckQuat.eulerAngles = new Vector3(0, 90, 180);
@@ -69,16 +69,26 @@ public class ClientGM: MonoBehaviour {
 
 	public void Drop(int pNum, int cardId, int closId, string targetSlot) {
 		CardInfo cardInfo = GetMunchkin(pNum).hand.GetCard(closId);
-		Card card = GetCard(cardId);
+		Card card = CardManagerData.allCards.Find(c => c.id == cardId);
 		if (!cardInfo.cardIsOpen)
 			cardInfo.OpenCard(card);
 
-		if (targetSlot.StartsWith("WT_", System.StringComparison.CurrentCulture) && card.cardType == Card.CardType.LVLUP) {
-			GetMunchkin(pNum).hand.RemoveCard(cardInfo);
-			freezCards.Remove(cardInfo);
-			Destroy(cardInfo.gameObject);
-			GetMunchkin(pNum).LvlUp(1); //
-			return;
+		if (targetSlot.StartsWith("WT_", System.StringComparison.CurrentCulture)) {
+			if (card.cardType == Card.CardType.LVLUP) {
+				GetMunchkin(pNum).hand.RemoveCard(cardInfo);
+				freezCards.Remove(cardInfo);
+				GetMunchkin(pNum).LvlUp(1);
+
+				if (pNum == player.info.number) {
+					Destroy(cardInfo.gameObject);
+				}
+				else {
+					cardInfo.OpenCard(card);
+					cardInfo.cardMovment.animator.PlayCard();
+				}
+
+				return;
+			}
 		}
 
 		switch (targetSlot) {
@@ -118,12 +128,5 @@ public class ClientGM: MonoBehaviour {
 			warTable.StartFight(cardInfo);
 		else
 			warTable.AddCard(cardInfo, true);
-	}
-
-	public Card GetCard(int cardId) {
-		Card card = CardManagerData.allDoorCards.Find(c => c.id == cardId);
-		if (card != null)
-			return card;
-		return CardManagerData.allTreasureCards.Find(c => c.id == cardId);
 	}
 }

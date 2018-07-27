@@ -3,8 +3,13 @@
 public class ThingSlot: MonoBehaviour {
 
 	CardInfo card;
-	public ThingCard.ThingType thingType;
-
+	public ThingType thingType;
+	public enum ThingType {
+		WEAPON,
+		HEAD,
+		ARMOR,
+		SHOES
+	}
 	public void AddCard(CardInfo newCard) {
 		RemoveCard();
 
@@ -22,12 +27,10 @@ public class ThingSlot: MonoBehaviour {
 	}
 
 	void PlaceCard() {
-		card.transform.position = transform.position;
-        card.transform.eulerAngles = new Vector3(0f, 0, 0f);
-		card.cardMovment.WriteNewPosition();
-    }
+		Vector3 newPos = transform.position;
+        Vector3 newAngl = new Vector3(0f, 0, 0f);
 
-	public int GetSlotBonus() {
-		return card == null ? 0 : (card.selfCard as ThingCard).bonus;
-	}
+		card.cardMovment.animator.MoveTo(newPos, newAngl, 1f);
+		card.cardMovment.WriteNewPosition(newPos, newAngl);
+    }
 }

@@ -15,11 +15,10 @@ public class WarTable : MonoBehaviour {
 	}
 	public void StartFight(CardInfo monster) {
 		AddCard(monster, false);
-		//CalculateDmg();
 	}
 
 	public void PlaseCardToHand(int pNum) {
-		ClientGM.Instance.GetMunchkin(pNum).hand.AddCard(playerSide.cards[0]);
+		GameManager.Instance.GetMunchkin(pNum).hand.AddCard(playerSide.cards[0]);
 		playerSide.cards.RemoveAt(0);
 	}
 
@@ -28,73 +27,8 @@ public class WarTable : MonoBehaviour {
 		monsterSide.ClearSide();
 	}
 
-	public void CalculateDmg() {
-		monsterSide.dmg = 0;
-		foreach (CardInfo card in monsterSide.cards) {
-			if (card.typeIs(Card.CardType.MONSTER))
-				monsterSide.dmg += (card.selfCard as MonsterCard).lvl;
-			else
-				monsterSide.dmg += (card.selfCard as ExplosiveCard).dmg;
-		}
-
-		bool curPlayerSide = ClientGM.Instance.turnController.playerTurn;
-		playerSide.dmg = curPlayerSide ? ClientGM.Instance.player.damage : ClientGM.Instance.enemy.damage;
-		foreach (CardInfo card in playerSide.cards) {
-			if (card.typeIs(Card.CardType.EXPLOSIVE))
-				playerSide.dmg += (card.selfCard as ExplosiveCard).dmg;
-		}
-
-		monsterSide.dmgText.text = monsterSide.dmg.ToString();
-		playerSide.dmgText.text = playerSide.dmg.ToString();
+	public void SetDmgText(int monDmg, int playerDmg) {
+		playerSide.dmgText.text = playerDmg.ToString();
+		monsterSide.dmgText.text = monDmg.ToString();
 	}
-
-	/*
-	public void PlayCard(CardInfo card, bool playerDS) {
-		if (card.typeIs(Card.CardType.LVLUP)) {
-			playerSide.AddCard(card);
-			gameManager.player.LvlUp(1);
-			Destroy(card.gameObject);
-			return;
-		}
-
-		if (card.typeIs(Card.CardType.MONSTER) && gameManager.CurrentTS_Is(TurnStage.after_door)) {
-			//gameManager.turnController.MonsterPlayed();
-			AddCard(card, false);
-		}
-
-		if (card.typeIs(Card.CardType.EXPLOSIVE) && gameManager.CurrentTS_Is(TurnStage.fight_player)) {
-			AddCard(card, playerDS);
-			CalculateDmg();
-		}
-	}
-
-
-
-	// TODO: Remove from Update()
-	void Update() {
-		if (gameManager.CurrentTS_Is(TurnStage.fight_enemy) || gameManager.CurrentTS_Is(TurnStage.fight_player)) {
-			CalculateDmg();
-		}
-		else {
-			monsterSide.dmgText.text = "0";
-			playerSide.dmgText.text = "0";
-		}
-	}
-
-
-	public void PlaseCardToHand() {
-		gameManager.player.hand.AddCard(playerSide.cards[0]);
-		playerSide.cards.RemoveAt(0);
-	}
-
-	public int GetNumberOfTreasure() {
-		int number = 0;
-
-		foreach (CardInfo card in monsterSide.cards)
-			if (card.typeIs(Card.CardType.MONSTER))
-				number += (card.selfCard as MonsterCard).numberOfTreasure;
-		
-		return number;
-	}
-	*/
 }

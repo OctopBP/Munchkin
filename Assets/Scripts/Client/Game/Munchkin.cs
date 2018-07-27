@@ -32,25 +32,13 @@ public class Munchkin : MonoBehaviour {
 		damage = 1;
 	}
 
-	public void CalculateDmg() {
-		damage = lvl;
-
-		damage += weapon1.GetSlotBonus();
-		damage += weapon2.GetSlotBonus();
-		damage += head.GetSlotBonus();
-		damage += armor.GetSlotBonus();
-		damage += shoes.GetSlotBonus();
-
-		dmgText.text = "at: " + damage;
-		lvlText.text = "lvl: " + lvl;
-	}
-
-	void Update() {
-		CalculateDmg();
-	}
-
 	public void LvlUp(int lvls) {
 		lvl += lvls;
+		//lvlText.text = "lvl: " + lvl;
+	}
+
+	public void SetDmgAndLvl(int dmg, int lvl) {
+		dmgText.text = "at: " + dmg;
 		lvlText.text = "lvl: " + lvl;
 	}
 }

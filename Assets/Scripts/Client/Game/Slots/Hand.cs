@@ -46,7 +46,7 @@ public class Hand: MonoBehaviour {
 			
 			card.cardMovment.WriteNewPosition(newPos, newAngl);
 			if (!card.cardMovment.cardSelected)
-				card.cardMovment.animator.Animate(newPos, newAngl, 1f);
+				card.cardMovment.animator.MoveTo(newPos, newAngl, 1f);
 			
 			i++;
 		}

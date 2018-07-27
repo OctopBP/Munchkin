@@ -12,7 +12,7 @@ public enum TurnStage {
 	completion
 }
 
-public class ClientTurnController : MonoBehaviour {
+public class TurnController : MonoBehaviour {
 
 	public TextMeshProUGUI turnTimeText;
 	public TextMeshProUGUI turnStageText;

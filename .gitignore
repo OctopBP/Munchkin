@@ -62,3 +62,6 @@ Packages/manifest.json
 ProjectSettings/ProjectVersion.txt
 *.anim
 *.controller
+*.jpg
+*.tga
+*.obj

@@ -29,7 +29,7 @@ public class Client : MonoBehaviour {
 	private void Awake() {
 		Instance = this;
 
-		ClientGM.Instance.cnnWaitGroup.SetActive(false);
+		GameManager.Instance.cnnWaitGroup.SetActive(false);
 	}
 
 	public void Connect() {
@@ -40,9 +40,9 @@ public class Client : MonoBehaviour {
 			return;
 		}
 
-		ClientGM.Instance.player.info.name = pName;
-		ClientGM.Instance.cnnCnnGroup.SetActive(false);
-		ClientGM.Instance.cnnWaitGroup.SetActive(true);
+		GameManager.Instance.player.info.name = pName;
+		GameManager.Instance.cnnCnnGroup.SetActive(false);
+		GameManager.Instance.cnnWaitGroup.SetActive(true);
 
 		NetworkTransport.Init();
 		ConnectionConfig cc = new ConnectionConfig();
@@ -58,8 +58,8 @@ public class Client : MonoBehaviour {
 		isConnected = true;
 	}
 	public void Cancel() {
-		ClientGM.Instance.cnnCnnGroup.SetActive(true);
-		ClientGM.Instance.cnnWaitGroup.SetActive(false);
+		GameManager.Instance.cnnCnnGroup.SetActive(true);
+		GameManager.Instance.cnnWaitGroup.SetActive(false);
 
 		NetworkTransport.Disconnect(hostId, connectionId, out error);
 
@@ -141,6 +141,10 @@ public class Client : MonoBehaviour {
 					RemoveCard(int.Parse(splitData[1]), splitData[2]);
 					break;
 
+				case SendNames.values:
+					UpdateValues(int.Parse(splitData[1]), int.Parse(splitData[2]), int.Parse(splitData[3]), int.Parse(splitData[4]), int.Parse(splitData[5]), int.Parse(splitData[6]));
+					break;
+
 				default:
 					Debug.Log("Invalid message: " + msg);
 					break;
@@ -148,11 +152,7 @@ public class Client : MonoBehaviour {
 		}
 	}
 
-	private void OnAskName(string[] data) {
-		ourClientId = int.Parse(data[1]);
-		Send(SendNames.nameis + "|" + ClientGM.Instance.player.info.name);
-	}
-
+	// Receive
 	private void StartGame(string[] data) {
 		for (int i = 1; i <= 2; i++) {
 			string[] d = data[i].Split('%');
@@ -167,57 +167,49 @@ public class Client : MonoBehaviour {
 			};
 
 			if (cnnId == ourClientId) {
-				ClientGM.Instance.player.info = p;
-				ClientGM.Instance.playerName.text = p.name;
+				GameManager.Instance.player.info = p;
+				GameManager.Instance.playerName.text = p.name;
 			}
 			else {
-				ClientGM.Instance.enemy.info = p;
-				ClientGM.Instance.enemyName.text = p.name;
+				GameManager.Instance.enemy.info = p;
+				GameManager.Instance.enemyName.text = p.name;
 
 			}
 		}
 
-		ClientGM.Instance.cnnCanvas.SetActive(false);
+		GameManager.Instance.cnnCanvas.SetActive(false);
 	}
 	private void PlayerDisconnected(int cnnId) {
 		//players.Remove(players.Find(c => c.connectionId == cnnId));
 	}
 
-	public void OnDrop(Card card, string targetSlot) {
-		string msg = SendNames.trydropcard +"|" + ClientGM.Instance.player.info.number + "|" + card.id + "|" + targetSlot;
-		Send(msg);
-	}
-	public void EndTurn() {
-		Send(SendNames.endturn + "|" + ClientGM.Instance.player.info.number.ToString());
-	}
-
 	private void AddCard(int pNum, Card.DeckType deckType, int cardId) {
 		CardInfo cardInfo;
-		if (pNum == ClientGM.Instance.player.info.number)
-			cardInfo = ClientGM.Instance.CreateCard(cardId);
+		if (pNum == GameManager.Instance.player.info.number)
+			cardInfo = GameManager.Instance.CreateCard(cardId);
 		else
-			cardInfo = ClientGM.Instance.CreateCard(deckType);
+			cardInfo = GameManager.Instance.CreateCard(deckType);
 
-		ClientGM.Instance.GetMunchkin(pNum).hand.AddCard(cardInfo);
+		GameManager.Instance.GetMunchkin(pNum).hand.AddCard(cardInfo);
 	}
 	private void RemoveCard(int pNum, string cardSlot) {
-		ClientGM.Instance.RemoveCard(pNum, cardSlot);
+		GameManager.Instance.RemoveCard(pNum, cardSlot);
 	}
 
 	private void OnNewStage(int turnClientNumber, TurnStage turnStage) {
 		// just for now
 		// TODO: Remove
 		if (turnStage != TurnStage.fight_enemy && turnStage != TurnStage.fight_player)
-			ClientGM.Instance.warTable.ClearTable();
+			GameManager.Instance.warTable.ClearTable();
 
-		ClientGM.Instance.turnController.ChangeTurn(turnStage, ClientGM.Instance.player.info.number == turnClientNumber);
+		GameManager.Instance.turnController.ChangeTurn(turnStage, GameManager.Instance.player.info.number == turnClientNumber);
 	}
 
 	private void Drop(int pNum, int cardId, int closId, string targetSlot) {
-		ClientGM.Instance.Drop(pNum, cardId, closId, targetSlot);
+		GameManager.Instance.Drop(pNum, cardId, closId, targetSlot);
 	}
 	private void DropDisallowed(int cardId, string reason) {
-		ClientGM.Instance.DropDisallowed(cardId, reason);
+		GameManager.Instance.DropDisallowed(cardId, reason);
 	}
 
 	private void OpenDoor(string[] data) {
@@ -232,22 +224,48 @@ public class Client : MonoBehaviour {
 		else
 			OnNewStage(pNum, TurnStage.waiting);
 
-		ClientGM.Instance.OpenDoor(cardId, isMonster);
+		GameManager.Instance.OpenDoor(cardId, isMonster);
 	}
 
 	private void OnEndFight(bool playerWin) {
 		if (playerWin)
-		if (ClientGM.Instance.turnController.playerTurn)
-			ClientGM.Instance.player.LvlUp(1); //
+		if (GameManager.Instance.turnController.playerTurn)
+			GameManager.Instance.player.LvlUp(1); //
 		else
-			ClientGM.Instance.enemy.LvlUp(1); //
+			GameManager.Instance.enemy.LvlUp(1); //
 
-		ClientGM.Instance.warTable.ClearTable();
+		GameManager.Instance.warTable.ClearTable();
 	}
 
 	private void TakeCardFromWT(int pNum) {
-		ClientGM.Instance.warTable.PlaseCardToHand(pNum);
-		ClientGM.Instance.turnController.ChangeTurn(TurnStage.after_door, ClientGM.Instance.player.info.number == pNum);
+		GameManager.Instance.warTable.PlaseCardToHand(pNum);
+		GameManager.Instance.turnController.ChangeTurn(TurnStage.after_door, GameManager.Instance.player.info.number == pNum);
+	}
+
+	private void UpdateValues(int dmg_0, int lvl_0, int dmg_1, int lvl_1, int monDmg, int playerDmg) {
+		if (GameManager.Instance.player.info.number == 0) {
+			GameManager.Instance.player.SetDmgAndLvl(dmg_0, lvl_0);
+			GameManager.Instance.enemy.SetDmgAndLvl(dmg_1, lvl_1);
+		}
+		else {
+			GameManager.Instance.enemy.SetDmgAndLvl(dmg_0, lvl_0);
+			GameManager.Instance.player.SetDmgAndLvl(dmg_1, lvl_1);
+		}
+		GameManager.Instance.warTable.SetDmgText(monDmg, playerDmg);
+	}
+
+	// Send
+	public void OnDrop(Card card, string targetSlot) {
+		string msg = SendNames.trydropcard + "|" + GameManager.Instance.player.info.number + "|" + card.id + "|" + targetSlot;
+		Send(msg);
+	}
+	public void EndTurn() {
+		Send(SendNames.endturn + "|" + GameManager.Instance.player.info.number.ToString());
+	}
+
+	private void OnAskName(string[] data) {
+		ourClientId = int.Parse(data[1]);
+		Send(SendNames.nameis + "|" + GameManager.Instance.player.info.name);
 	}
 
 	private void Send(string message) {
