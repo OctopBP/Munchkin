@@ -30,7 +30,7 @@ public class ThingSlot: MonoBehaviour {
 		Vector3 newPos = transform.position;
         Vector3 newAngl = new Vector3(0f, 0, 0f);
 
-		card.cardMovment.animator.MoveTo(newPos, newAngl, 1f);
-		card.cardMovment.WriteNewPosition(newPos, newAngl);
+		card.cardMovment.MoveTo(newPos, newAngl, 1f);
+		//card.cardMovment.WriteNewPosition(newPos, newAngl);
     }
 }

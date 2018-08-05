@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class CardMovment : MonoBehaviour {
 
 	public MeshRenderer border;
+	public TextMeshPro stateText;
 
 	[HideInInspector] public Transform defaultParent;
 
@@ -14,50 +15,65 @@ public class CardMovment : MonoBehaviour {
 	private Vector3 basePosition;
 	private Vector3 baseAngles;
 
-	//private Vector3 targetPosition;
-	//private Vector3 targetAngles;
+	private bool mouseOver = false;
+	private float overTime;
+	private float overTimeLimit = 0.1f;
 
-	public bool cardSelected;
-	public bool cardActive;
-
-	private bool cardFreezed;
-	private bool isYourCard;
+	public bool moving;
+	public  bool selected;
+	public CardState State = CardState.CLOSED;
+	public enum CardState {
+		HOVERED,
+		HOVERED_A,
+		CLOSED,
+		ACTIVE,
+		OPEN,
+		FREEZED
+	}
 
 	private void Awake() {
 		cardInfo = GetComponent<CardInfo>();
 		animator = GetComponent<CardAnimator>();
 
 		border.enabled = false;
-		cardActive = true;
-		cardFreezed = false;
     }
+	private void Update() {
+		stateText.text = Enum.GetName(typeof(CardState), State);
+	}
 
 	private void OnMouseOver() {
-		if (cardFreezed || animator.moving)
+		if (selected || moving || (State != CardState.ACTIVE && State != CardState.OPEN))
 			return;
+
+		// Delay before Hover()
+		if (!mouseOver)
+			overTime = overTimeLimit;
 		
-		defaultParent = transform.parent;
+		mouseOver = true;
 
-		bool canHover = defaultParent.GetComponent<DropSlot>().slotParent != SlotParent.ENEMY || defaultParent.GetComponent<DropSlot>().dropSlotType != DropSlotType.HAND;
-		isYourCard = defaultParent.GetComponent<DropSlot>().slotParent == SlotParent.SELF;
-
-		if (!canHover) {
-			WriteNewPosition();
+		if (overTime > 0) {
+			overTime -= Time.deltaTime;
 			return;
 		}
 
-		if (!cardSelected) {
-            WriteNewPosition();
-			HoverCard();
+		// Hover()
+		if (selected || moving)
+			return;
+		
+		if (State == CardState.ACTIVE)
+			State = CardState.HOVERED_A;
+		else
+			State = CardState.HOVERED;
 
-            cardSelected = true;
-        }
+		WriteNewPosition();
+		animator.HoverCard(basePosition);
+		selected = true;
     }
 	private void OnMouseDown() {
 		// TODO: Hover down
 	}
 	private void OnMouseDrag() {
-		if (!isYourCard || !cardActive || cardFreezed || animator.moving)
+		if (State != CardState.HOVERED_A || moving)
 			return;
 
 		Vector3 distanceToScreen = Camera.main.WorldToScreenPoint(transform.position);
@@ -68,81 +84,83 @@ public class CardMovment : MonoBehaviour {
 		// Если parent рука и находимся в пределах руки при перетаскивании меняем карты местами
 	}
 	private void OnMouseUp() {
-		if (!isYourCard || !cardActive || cardFreezed || animator.moving)
+		if (State != CardState.HOVERED_A || moving)
 			return;
 		
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit[] hits = Physics.RaycastAll(ray);
 
 		foreach (RaycastHit hit in hits) {
-		
 			DropSlot targetSlot = hit.collider.gameObject.transform.GetComponent<DropSlot>();
 			if (targetSlot) {
-				if (targetSlot.transform == defaultParent) {
+				if (targetSlot.transform == defaultParent || targetSlot.slotParent == SlotParent.ENEMY) {
+					if (State == CardState.HOVERED_A)
+						State = CardState.ACTIVE;
+					else if (State == CardState.HOVERED)
+						State = CardState.OPEN;
+					
 					ResetPosition();
 					return;
 				}
 
-				if (targetSlot.slotParent != SlotParent.ENEMY) {
-					string targetSlotName = Enum.GetName(typeof(DropSlotType), targetSlot.dropSlotType);
+				string targetSlotName = Enum.GetName(typeof(DropSlotType), targetSlot.dropSlotType);
 
-					Client.Instance.OnDrop(cardInfo.selfCard, targetSlotName);
-					GameManager.Instance.freezCards.Add(cardInfo);
-					cardFreezed = true;
-					return;
-				}
-			}
+				Client.Instance.OnDrop(cardInfo.selfCard, targetSlotName);
+				GameManager.Instance.freezCards.Add(cardInfo);
+				State = CardState.FREEZED;
+				return;
+			} 
 		}
 		ResetPosition();
     }
 	private void OnMouseExit() {
-		animator.StopAllCoroutines();
-		animator.moving = false;
+		mouseOver = false;
 
-		if (cardFreezed)
+		if (State == CardState.FREEZED || State == CardState.CLOSED || moving)
 			return;
-		
+
+		animator.StopAllCoroutines();
 		ResetPosition();
-		cardSelected = false;
 		transform.SetParent(defaultParent);
+
+		if (State == CardState.HOVERED_A)
+			State = CardState.ACTIVE;
+		else if (State == CardState.HOVERED)
+			State = CardState.OPEN;
+
+		selected = false;
 	}
 
-	private void HoverCard() {
-		float zLimit = 1;
-		float xLimit = 4;
-		float distanceToCamera = 3;
+	public void MoveTo(Vector3 targetPos, Vector3 targetAngles, float time) {
+		WriteNewPosition(targetPos, targetAngles);
 
-		float k = distanceToCamera / (Camera.main.transform.position.y - basePosition.y);
+		if (State == CardState.HOVERED)
+			return;
 
-		Vector3 hoverPosition;
-		hoverPosition.x = Mathf.Min(Mathf.Max(k * basePosition.x, -xLimit), xLimit);
-		hoverPosition.y = Camera.main.transform.position.y - distanceToCamera;
-		hoverPosition.z = Mathf.Min(Mathf.Max(k * transform.position.z, -zLimit), zLimit);
-
-		animator.MoveTo(hoverPosition, Vector3.zero, 0.1f);
+		animator.MoveTo(targetPos, targetAngles, time);
 	}
 
 	public void UndoDrop() {
-		cardFreezed = false;
+		State = CardState.ACTIVE;
 		ResetPosition();
 	}
 	public void AllowDrop() {
-		cardFreezed = false;
-		cardActive = false;
-		//WriteNewPosition(targetSlot.transform.position, targetSlot.transform.eulerAngles);
-		//defaultParent = targetSlot.transform;
+		State = CardState.OPEN;
 		ResetPosition();
 	}
 
 	public void ResetPosition() {
+		//Debug.Log("ResetPosition()");
         transform.position = basePosition;
         transform.eulerAngles = baseAngles;
     }
 	public void WriteNewPosition(Vector3 position, Vector3 angles) {
+		//Debug.Log("WriteNewPosition(" + position + ", " + angles + ")");
         basePosition = position;
         baseAngles = angles;
     }
 	public void WriteNewPosition() {
+		//Debug.Log("WriteNewPosition()");
         basePosition = transform.position;
         baseAngles = transform.eulerAngles;
     }

@@ -16,11 +16,13 @@ public class CardInfo : MonoBehaviour {
 
 	public void BuildCard(HidenCard hidenCard) {
 		cardIsOpen = false;
+		cardMovment.State = CardMovment.CardState.CLOSED;
 		selfHidenCard = hidenCard;
 		SetTextures();
 	}
 	public void BuildCard(Card card) {
 		cardIsOpen = true;
+		cardMovment.State = CardMovment.CardState.ACTIVE;
 		selfCard = card;
 		selfHidenCard = card;
 		SetTextures();

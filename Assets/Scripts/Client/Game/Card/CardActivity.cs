@@ -4,8 +4,8 @@ public class CardActivity : MonoBehaviour {
 
 	// Disabled
 
-	public void SetCardActivity(TurnStage turnStage, CardInfo card) {
-		bool active = true;
+	//public void SetCardActivity(TurnStage turnStage, CardInfo card) {
+		//bool active = true;
 
 		// HeshTable ??
 		/*
@@ -74,8 +74,8 @@ public class CardActivity : MonoBehaviour {
 				break;
 		}
 */
-		card.cardMovment.cardActive = active;
+		//card.cardMovment.cardActive = active;
 		//card.cardMovment.border.enabled = active;
-	}
+	//}
 
 }

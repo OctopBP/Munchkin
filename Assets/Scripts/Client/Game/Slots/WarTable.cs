@@ -18,6 +18,11 @@ public class WarTable : MonoBehaviour {
 	}
 
 	public void PlaseCardToHand(int pNum) {
+		if (pNum == GameManager.Instance.player.info.number)
+			playerSide.cards[0].cardMovment.State = CardMovment.CardState.ACTIVE;
+		else
+			playerSide.cards[0].cardMovment.State = CardMovment.CardState.CLOSED;
+		
 		GameManager.Instance.GetMunchkin(pNum).hand.AddCard(playerSide.cards[0]);
 		playerSide.cards.RemoveAt(0);
 	}

@@ -6,8 +6,8 @@ public class GameManager: MonoBehaviour {
 
 	public static GameManager Instance { get; set; }
 
-	public Munchkin player = new Munchkin();
-	public Munchkin enemy = new Munchkin();
+	public Munchkin player;
+	public Munchkin enemy;
 
 	public Munchkin GetMunchkin(int num) {
 		return num == player.info.number ? player : enemy;
@@ -23,8 +23,6 @@ public class GameManager: MonoBehaviour {
 	public GameObject cnnCanvas;
 	public GameObject cnnCnnGroup;
 	public GameObject cnnWaitGroup;
-	public TextMeshProUGUI enemyName;
-	public TextMeshProUGUI playerName;
 
 	private void Awake() {
 		Instance = this;
@@ -77,7 +75,6 @@ public class GameManager: MonoBehaviour {
 			if (card.cardType == Card.CardType.LVLUP) {
 				GetMunchkin(pNum).hand.RemoveCard(cardInfo);
 				freezCards.Remove(cardInfo);
-				GetMunchkin(pNum).LvlUp(1);
 
 				if (pNum == player.info.number) {
 					Destroy(cardInfo.gameObject);
@@ -123,7 +120,8 @@ public class GameManager: MonoBehaviour {
 
 	public void OpenDoor(int cardId, bool isMonster) {
 		CardInfo cardInfo = CreateCard(cardId);
-	
+		cardInfo.cardMovment.State = CardMovment.CardState.OPEN;
+
 		if (isMonster)
 			warTable.StartFight(cardInfo);
 		else

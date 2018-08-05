@@ -1,15 +1,10 @@
 ﻿using TMPro;
 using UnityEngine;
 
-public class PlayerInfo {
-	public string name;
-	public int number;
-	public int connectionId;
-}
-
+[RequireComponent(typeof(PlayerInfo))]
 public class Munchkin : MonoBehaviour {
 
-	public PlayerInfo info = new PlayerInfo();
+	public PlayerInfo info;
 
 	[Space(16)]
 	public Hand hand;
@@ -24,21 +19,21 @@ public class Munchkin : MonoBehaviour {
 	public TextMeshPro lvlText;
 	public TextMeshPro dmgText;
 
-	public int lvl;
-	public int damage;
 
 	void Awake() {
-		lvl = 1;
-		damage = 1;
-	}
-
-	public void LvlUp(int lvls) {
-		lvl += lvls;
-		//lvlText.text = "lvl: " + lvl;
+		info = GetComponent<PlayerInfo>();
 	}
 
 	public void SetDmgAndLvl(int dmg, int lvl) {
 		dmgText.text = "at: " + dmg;
 		lvlText.text = "lvl: " + lvl;
+	}
+
+	public void SetInfo(string name, int number, int cnnId) {
+		info.playerNameText.text = name;
+
+		info.playerName = name;
+		info.number = number;
+		info.connectionId = cnnId;
 	}
 }

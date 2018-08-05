@@ -40,7 +40,7 @@ public class Client : MonoBehaviour {
 			return;
 		}
 
-		GameManager.Instance.player.info.name = pName;
+		GameManager.Instance.player.info.playerName = pName;
 		GameManager.Instance.cnnCnnGroup.SetActive(false);
 		GameManager.Instance.cnnWaitGroup.SetActive(true);
 
@@ -86,7 +86,7 @@ public class Client : MonoBehaviour {
 
 		if (recData == NetworkEventType.DataEvent) {
 			string msg = Encoding.Unicode.GetString(recBuffer, 0, dataSize);
-			Debug.Log("Receiving: " + msg);
+			//Debug.Log("Receiving: " + msg);
 
 			string[] splitData = msg.Split('|');
 
@@ -104,17 +104,17 @@ public class Client : MonoBehaviour {
 					break;
 
 				case SendNames.cardtohand:
-					Debug.Log("Add card " + splitData[3] + " to player " + splitData[1]);
+					//Debug.Log("Add card " + splitData[3] + " to player " + splitData[1]);
 					AddCard(int.Parse(splitData[1]), (Card.DeckType)Enum.Parse(typeof(Card.DeckType), splitData[2]), int.Parse(splitData[3]));
 					break;
 
 				case SendNames.opendoor:
-					Debug.Log("Open door: " + splitData[1]);
+					//Debug.Log("Open door: " + splitData[1]);
 					OpenDoor(splitData);
 					break;
 
 				case SendNames.endfigth:
-					Debug.Log("End fight: " + splitData[1]);
+					//Debug.Log("End fight: " + splitData[1]);
 					OnEndFight(int.Parse(splitData[1]) == 1);
 					break;
 
@@ -123,17 +123,17 @@ public class Client : MonoBehaviour {
 					break;
 
 				case SendNames.newstage:
-					Debug.Log("New Stage: " + splitData[2]);
+					//Debug.Log("New Stage: " + splitData[2]);
 					OnNewStage(int.Parse(splitData[1]), (TurnStage)Enum.Parse(typeof(TurnStage), splitData[2]));
 					break;
 
 				case SendNames.dropallowed:
-					Debug.Log("Player " + splitData[1] + " drop " + splitData[2] + " card from pos " + splitData[3] + " to: " + splitData[4]);
+					//Debug.Log("Player " + splitData[1] + " drop " + splitData[2] + " card from pos " + splitData[3] + " to: " + splitData[4]);
 					Drop(int.Parse(splitData[1]), int.Parse(splitData[2]), int.Parse(splitData[3]), splitData[4]);
 					break;
 
 				case SendNames.dropdisallowed:
-					Debug.Log("Drop for card whith id " + int.Parse(splitData[1]) + " disallowes beacose " + splitData[2]);
+					//Debug.Log("Drop for card whith id " + int.Parse(splitData[1]) + " disallowes beacose " + splitData[2]);
 					DropDisallowed(int.Parse(splitData[1]), splitData[2]);
 					break;
 
@@ -158,23 +158,13 @@ public class Client : MonoBehaviour {
 			string[] d = data[i].Split('%');
 
 			int cnnId = int.Parse(d[0]);
+			string pName = d[1];
 			int pNum = int.Parse(d[2]);
 
-			PlayerInfo p = new PlayerInfo {
-				name = d[1],
-				number = pNum,
-				connectionId = cnnId
-			};
-
-			if (cnnId == ourClientId) {
-				GameManager.Instance.player.info = p;
-				GameManager.Instance.playerName.text = p.name;
-			}
-			else {
-				GameManager.Instance.enemy.info = p;
-				GameManager.Instance.enemyName.text = p.name;
-
-			}
+			if (cnnId == ourClientId)
+				GameManager.Instance.player.SetInfo(pName, pNum, cnnId);
+			else
+				GameManager.Instance.enemy.SetInfo(pName, pNum, cnnId);
 		}
 
 		GameManager.Instance.cnnCanvas.SetActive(false);
@@ -218,9 +208,7 @@ public class Client : MonoBehaviour {
 		bool isMonster = int.Parse(data[3]) == 1;
 
 		if (isMonster)
-			OnNewStage(pNum, TurnStage.fight_player);
-			//int pDmg = int.Parse(data[4]);	
-			//int mDmg = int.Parse(data[5]);	
+			OnNewStage(pNum, TurnStage.fight_player);	
 		else
 			OnNewStage(pNum, TurnStage.waiting);
 
@@ -228,12 +216,6 @@ public class Client : MonoBehaviour {
 	}
 
 	private void OnEndFight(bool playerWin) {
-		if (playerWin)
-		if (GameManager.Instance.turnController.playerTurn)
-			GameManager.Instance.player.LvlUp(1); //
-		else
-			GameManager.Instance.enemy.LvlUp(1); //
-
 		GameManager.Instance.warTable.ClearTable();
 	}
 
@@ -265,11 +247,11 @@ public class Client : MonoBehaviour {
 
 	private void OnAskName(string[] data) {
 		ourClientId = int.Parse(data[1]);
-		Send(SendNames.nameis + "|" + GameManager.Instance.player.info.name);
+		Send(SendNames.nameis + "|" + GameManager.Instance.player.info.playerName);
 	}
 
 	private void Send(string message) {
-		Debug.Log("Sending: " + message);
+		//Debug.Log("Sending: " + message);
 		byte[] msg = Encoding.Unicode.GetBytes(message);
 		NetworkTransport.Send(hostId, connectionId, reliableChannel, msg, message.Length * sizeof(char), out error);
 	}
