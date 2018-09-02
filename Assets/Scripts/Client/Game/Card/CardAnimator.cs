@@ -56,7 +56,7 @@ public class CardAnimator: MonoBehaviour {
 		StopAllCoroutines();
 		StartCoroutine(MoveToPos(hoverPosition, Vector3.zero, 0.1f, false));
 	}
-
+	
 	private IEnumerator MoveToPos(Vector3 targetPosition, Vector3 targetAngles, float time, bool locked) {
 		Vector3 velocity = Vector3.zero;
 		float t = 0;

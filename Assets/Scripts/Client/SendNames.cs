@@ -32,4 +32,9 @@
 
 	public const string values = "VALUES";
 
+	public const string cardselectionstage = "CARDSELSTAGE";
+
+	public const string en_cardselectionstage = "ENCARDSELSTAGE";
+
+	public const string cardtodrop = "CARDTODROP";
 }

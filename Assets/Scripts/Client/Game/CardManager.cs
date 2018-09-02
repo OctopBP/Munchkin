@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable] public class HidenCard {
-	public int closeId = 0;
+	public string slotId = "D";
 
 	public DeckType deckType;
 	public enum DeckType {

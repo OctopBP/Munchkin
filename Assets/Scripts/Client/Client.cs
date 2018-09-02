@@ -3,6 +3,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using TMPro;
+using System.Collections.Generic;
 
 public class Client : MonoBehaviour {
 
@@ -33,7 +34,6 @@ public class Client : MonoBehaviour {
 	}
 
 	public void Connect() {
-
 		string pName = GameObject.Find("NameInput").GetComponent<TMP_InputField>().text;
 		if (pName == "") {
 			Debug.Log("Plesae, enter a name");
@@ -86,7 +86,7 @@ public class Client : MonoBehaviour {
 
 		if (recData == NetworkEventType.DataEvent) {
 			string msg = Encoding.Unicode.GetString(recBuffer, 0, dataSize);
-			//Debug.Log("Receiving: " + msg);
+			Debug.Log("Receiving: " + msg);
 
 			string[] splitData = msg.Split('|');
 
@@ -124,17 +124,17 @@ public class Client : MonoBehaviour {
 
 				case SendNames.newstage:
 					//Debug.Log("New Stage: " + splitData[2]);
-					OnNewStage(int.Parse(splitData[1]), (TurnStage)Enum.Parse(typeof(TurnStage), splitData[2]));
+					OnNewStage(int.Parse(splitData[1]), (TurnStage)Enum.Parse(typeof(TurnStage), splitData[2]), int.Parse(splitData[3]));
 					break;
 
 				case SendNames.dropallowed:
 					//Debug.Log("Player " + splitData[1] + " drop " + splitData[2] + " card from pos " + splitData[3] + " to: " + splitData[4]);
-					Drop(int.Parse(splitData[1]), int.Parse(splitData[2]), int.Parse(splitData[3]), splitData[4]);
+					Drop(int.Parse(splitData[1]), splitData[2], splitData[3], int.Parse(splitData[4]));
 					break;
 
 				case SendNames.dropdisallowed:
 					//Debug.Log("Drop for card whith id " + int.Parse(splitData[1]) + " disallowes beacose " + splitData[2]);
-					DropDisallowed(int.Parse(splitData[1]), splitData[2]);
+					DropDisallowed(splitData[1], splitData[2]);
 					break;
 
 				case SendNames.removecard:
@@ -143,6 +143,14 @@ public class Client : MonoBehaviour {
 
 				case SendNames.values:
 					UpdateValues(int.Parse(splitData[1]), int.Parse(splitData[2]), int.Parse(splitData[3]), int.Parse(splitData[4]), int.Parse(splitData[5]), int.Parse(splitData[6]));
+					break;
+
+				case SendNames.cardselectionstage:
+					CardSelection(int.Parse(splitData[1]), splitData[2]);
+					break;
+
+				case SendNames.en_cardselectionstage:
+					EmenyCardSelection(int.Parse(splitData[1]));
 					break;
 
 				default:
@@ -182,24 +190,33 @@ public class Client : MonoBehaviour {
 
 		GameManager.Instance.GetMunchkin(pNum).hand.AddCard(cardInfo);
 	}
-	private void RemoveCard(int pNum, string cardSlot) {
-		GameManager.Instance.RemoveCard(pNum, cardSlot);
+	private void RemoveCard(int pNum, string slotId) {
+		GameManager.Instance.RemoveCard(pNum, slotId);
 	}
 
-	private void OnNewStage(int turnClientNumber, TurnStage turnStage) {
-		// just for now
+	private void OnNewStage(int turnClientNumber, TurnStage turnStage, int time) {
+		GameManager.Instance.enemyDropCardsText.SetActive(false);
+
+
 		// TODO: Remove
+
+		// just for now
 		if (turnStage != TurnStage.fight_enemy && turnStage != TurnStage.fight_player)
 			GameManager.Instance.warTable.ClearTable();
 
-		GameManager.Instance.turnController.ChangeTurn(turnStage, GameManager.Instance.player.info.number == turnClientNumber);
+		GameManager.Instance.GetMunchkin(turnClientNumber).hand.RemoveAllEmptySlots();
+
+		//
+
+
+		GameManager.Instance.turnController.ChangeTurn(turnStage, GameManager.Instance.player.info.number == turnClientNumber, time);
 	}
 
-	private void Drop(int pNum, int cardId, int closId, string targetSlot) {
-		GameManager.Instance.Drop(pNum, cardId, closId, targetSlot);
+	private void Drop(int pNum, string sourseSlotId, string targetSlotId, int cardId) {
+		GameManager.Instance.Drop(pNum, sourseSlotId, targetSlotId, cardId);
 	}
-	private void DropDisallowed(int cardId, string reason) {
-		GameManager.Instance.DropDisallowed(cardId, reason);
+	private void DropDisallowed(string slotId, string reason) {
+		GameManager.Instance.DropDisallowed(slotId, reason);
 	}
 
 	private void OpenDoor(string[] data) {
@@ -207,10 +224,10 @@ public class Client : MonoBehaviour {
 		int cardId = int.Parse(data[2]);
 		bool isMonster = int.Parse(data[3]) == 1;
 
-		if (isMonster)
-			OnNewStage(pNum, TurnStage.fight_player);	
-		else
-			OnNewStage(pNum, TurnStage.waiting);
+		//if (isMonster)
+		//	OnNewStage(pNum, TurnStage.fight_player);	
+		//else
+			//OnNewStage(pNum, TurnStage.waiting);
 
 		GameManager.Instance.OpenDoor(cardId, isMonster);
 	}
@@ -221,7 +238,37 @@ public class Client : MonoBehaviour {
 
 	private void TakeCardFromWT(int pNum) {
 		GameManager.Instance.warTable.PlaseCardToHand(pNum);
-		GameManager.Instance.turnController.ChangeTurn(TurnStage.after_door, GameManager.Instance.player.info.number == pNum);
+		//GameManager.Instance.turnController.ChangeTurn(TurnStage.after_door, GameManager.Instance.player.info.number == pNum);
+	}
+
+	private void CardSelection(int numberOfCards, string cardData) {
+		string[] cards = cardData.Split('%');
+
+		//Dictionary<int, string> cardsDictionary = new Dictionary<int, string>();
+		List<string> cardsList = new List<string>();
+
+		for (int i = 0; i < cards.Length; i++) {
+			//string[] cardInfo = cards[i].Split('&');
+
+			string slotName = cards[i];
+			//int cardId = int.Parse(cardInfo[1]);
+
+			cardsList.Add(slotName);
+		}
+
+		GameManager.Instance.SelectionCards(cardsList, numberOfCards);
+
+		// for example
+		//
+		// cardData = "HAND & 32 % HAND & 21 % WEAPON1 & 43"	(with no spaces)
+		// cards[0] = "HAND & 32" 								(with no spaces)
+		// slotName = "HAND"
+		// cardId = 32
+
+	}
+	private void EmenyCardSelection(int numberOfCards) {
+		GameManager.Instance.enemyDropCardsText.SetActive(true);
+		GameManager.Instance.enemyDropCardsText.GetComponent<TextMeshPro>().text = "Enemy select " + numberOfCards + " card to drop";
 	}
 
 	private void UpdateValues(int dmg_0, int lvl_0, int dmg_1, int lvl_1, int monDmg, int playerDmg) {
@@ -237,21 +284,33 @@ public class Client : MonoBehaviour {
 	}
 
 	// Send
-	public void OnDrop(Card card, string targetSlot) {
-		string msg = SendNames.trydropcard + "|" + GameManager.Instance.player.info.number + "|" + card.id + "|" + targetSlot;
+	private void OnAskName(string[] data) {
+		ourClientId = int.Parse(data[1]);
+		Send(SendNames.nameis + "|" + GameManager.Instance.player.info.playerName);
+	}
+
+	public void OnDrop(string parentSlotId, string targetSlotId) {
+		string msg = SendNames.trydropcard + "|" + GameManager.Instance.player.info.number + "|" + parentSlotId+ "|" + targetSlotId;
 		Send(msg);
 	}
 	public void EndTurn() {
 		Send(SendNames.endturn + "|" + GameManager.Instance.player.info.number.ToString());
 	}
 
-	private void OnAskName(string[] data) {
-		ourClientId = int.Parse(data[1]);
-		Send(SendNames.nameis + "|" + GameManager.Instance.player.info.playerName);
+	public void SendCardToDrop(List<string> slotIdArr) {
+		string msg = SendNames.cardtodrop + "|" + GameManager.Instance.player.info.number + "|";
+
+		foreach (string slotId in slotIdArr) {
+			msg += slotId + "%";
+		}
+
+		msg = msg.Trim('%');
+
+		Send(msg);
 	}
 
 	private void Send(string message) {
-		//Debug.Log("Sending: " + message);
+		Debug.Log("Sending: " + message);
 		byte[] msg = Encoding.Unicode.GetBytes(message);
 		NetworkTransport.Send(hostId, connectionId, reliableChannel, msg, message.Length * sizeof(char), out error);
 	}

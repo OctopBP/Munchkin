@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public enum TurnStage {
 	preparation,
@@ -9,15 +8,15 @@ public enum TurnStage {
 	after_door,
 	fight_player,
 	fight_enemy,
+	select_cards,
 	completion
 }
 
 public class TurnController : MonoBehaviour {
-
-	public TextMeshProUGUI turnTimeText;
-	public TextMeshProUGUI turnStageText;
-	public Button endTurnButton;
-	private TextMeshProUGUI buttonText;
+	
+	public TextMeshPro turnTimeText;
+	public TextMeshPro turnStageText;
+	public MyButton endTurnButton;
 
 	public bool playerTurn;
 	public TurnStage currentTurnStage;
@@ -25,17 +24,14 @@ public class TurnController : MonoBehaviour {
 	private void StartGame() {
 		currentTurnStage = TurnStage.preparation;
 
-		buttonText = endTurnButton.GetComponentInChildren<TextMeshProUGUI>();
-
-		buttonText.text = "Open Door";
-		StartCoroutine(TurnFunc());
+		endTurnButton.textMesh.text = "Open Door";
+		StartCoroutine(TurnFunc(20));
 	}
 
-	private IEnumerator TurnFunc() {
-		int[] turnTime = { 20, 2, 15, 15, 15, 10 };
-		int timeToEndTurn = turnTime[(int)currentTurnStage];
+	private IEnumerator TurnFunc(int time) {
+		//int[] turnTime = { 20, 3, 15, 15, 15, 20, 10 };
+		int timeToEndTurn = time;//turnTime[(int)currentTurnStage];
 		turnTimeText.text = timeToEndTurn.ToString();
-		//turnStageText.text = currentTurnStage.ToString();
 
 		while (timeToEndTurn >= 0) {
 			turnTimeText.text = timeToEndTurn.ToString();
@@ -47,7 +43,7 @@ public class TurnController : MonoBehaviour {
 	public void ButtonOnPress() {
 		//SendChangeTurn();
 	}
-	public void ChangeTurn(TurnStage newStage, bool isPlayerTurn) {
+	public void ChangeTurn(TurnStage newStage, bool isPlayerTurn, int time) {
 		StopAllCoroutines();
 
 		playerTurn = isPlayerTurn;
@@ -55,14 +51,9 @@ public class TurnController : MonoBehaviour {
 		currentTurnStage = newStage;
 		turnStageText.text = currentTurnStage.ToString();
 
-		Color disableColor = Color.grey; // new Color(110, 180, 90);
-		Color enableColor = Color.green; // new Color(240, 65, 70);
-
 		bool isButtonEnable = (isPlayerTurn ^ (newStage == TurnStage.fight_enemy)) && (newStage != TurnStage.waiting);
+		endTurnButton.SetActive(isButtonEnable);
 
-		endTurnButton.image.color = isButtonEnable ? enableColor : disableColor;
-		endTurnButton.enabled = isButtonEnable;
-
-		StartCoroutine(TurnFunc());
+		StartCoroutine(TurnFunc(time));
 	}
 }

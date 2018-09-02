@@ -47,7 +47,7 @@ public class CardInfo : MonoBehaviour {
 		SetTextures();
 	}
 
-	public bool typeIs(Card.CardType cardType) {
+	public bool TypeIs(Card.CardType cardType) {
 		if (!cardIsOpen)
 			return false;
 		

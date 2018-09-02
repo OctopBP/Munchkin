@@ -3,14 +3,17 @@ using TMPro;
 using UnityEngine;
 
 public class CardMovment : MonoBehaviour {
-
+	
 	public MeshRenderer border;
-	public TextMeshPro stateText;
+	public MeshRenderer x_mark;
+	public TextMeshPro slotIdText;
 
 	[HideInInspector] public Transform defaultParent;
 
 	[HideInInspector] public CardInfo cardInfo;
 	[HideInInspector] public CardAnimator animator;
+
+	public string parentSlotId; // TODO: убрать, использовать slotId из Card
 
 	private Vector3 basePosition;
 	private Vector3 baseAngles;
@@ -20,7 +23,8 @@ public class CardMovment : MonoBehaviour {
 	private float overTimeLimit = 0.1f;
 
 	public bool moving;
-	public  bool selected;
+	public bool selected;
+	public bool selectedToDrop;
 	public CardState State = CardState.CLOSED;
 	public enum CardState {
 		HOVERED,
@@ -28,7 +32,8 @@ public class CardMovment : MonoBehaviour {
 		CLOSED,
 		ACTIVE,
 		OPEN,
-		FREEZED
+		FREEZED,
+		SELECTION
 	}
 
 	private void Awake() {
@@ -36,9 +41,10 @@ public class CardMovment : MonoBehaviour {
 		animator = GetComponent<CardAnimator>();
 
 		border.enabled = false;
+		x_mark.enabled = false;
     }
 	private void Update() {
-		stateText.text = Enum.GetName(typeof(CardState), State);
+		slotIdText.text = parentSlotId;
 	}
 
 	private void OnMouseOver() {
@@ -71,6 +77,11 @@ public class CardMovment : MonoBehaviour {
     }
 	private void OnMouseDown() {
 		// TODO: Hover down
+
+		if (State == CardState.SELECTION) {
+			selectedToDrop = !selectedToDrop;
+			x_mark.enabled = selectedToDrop;
+		}
 	}
 	private void OnMouseDrag() {
 		if (State != CardState.HOVERED_A || moving)
@@ -103,9 +114,10 @@ public class CardMovment : MonoBehaviour {
 					return;
 				}
 
-				string targetSlotName = Enum.GetName(typeof(DropSlotType), targetSlot.dropSlotType);
+				//string parentSlotId = Enum.GetName(typeof(DropSlotType), defaultParent.GetComponent<DropSlot>().dropSlotType);
+				string targetSlotId = Enum.GetName(typeof(DropSlotType), targetSlot.dropSlotType);
 
-				Client.Instance.OnDrop(cardInfo.selfCard, targetSlotName);
+				Client.Instance.OnDrop(parentSlotId, targetSlotId);
 				GameManager.Instance.freezCards.Add(cardInfo);
 				State = CardState.FREEZED;
 				return;
@@ -116,7 +128,7 @@ public class CardMovment : MonoBehaviour {
 	private void OnMouseExit() {
 		mouseOver = false;
 
-		if (State == CardState.FREEZED || State == CardState.CLOSED || moving)
+		if (State == CardState.FREEZED || State == CardState.CLOSED || State == CardState.SELECTION || moving)
 			return;
 
 		animator.StopAllCoroutines();
@@ -131,6 +143,12 @@ public class CardMovment : MonoBehaviour {
 		selected = false;
 	}
 
+	public void HoverToSelection(float x, float z) {
+		//GameManager.Instance.AddCardToDrop(cardInfo);
+		                   
+		State = CardState.SELECTION;
+		animator.MoveTo(new Vector3(x, 6, z), Vector3.zero, 1);
+	}
 	public void MoveTo(Vector3 targetPos, Vector3 targetAngles, float time) {
 		WriteNewPosition(targetPos, targetAngles);
 

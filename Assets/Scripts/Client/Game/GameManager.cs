@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
+using System;
 
 public class GameManager: MonoBehaviour {
 
@@ -23,6 +24,11 @@ public class GameManager: MonoBehaviour {
 	public GameObject cnnCanvas;
 	public GameObject cnnCnnGroup;
 	public GameObject cnnWaitGroup;
+
+	public GameObject blackPlane;
+	public GameObject okButton;
+
+	public GameObject enemyDropCardsText;
 
 	private void Awake() {
 		Instance = this;
@@ -61,19 +67,42 @@ public class GameManager: MonoBehaviour {
 		return cardInfo;
 	}
 
+	// Button functions
 	public void EndTurn() {
 		Client.Instance.EndTurn();
 	}
+	public void SelectCards() {
+		List<string> cardIdToDrop = new List<string>();
 
-	public void Drop(int pNum, int cardId, int closId, string targetSlot) {
-		CardInfo cardInfo = GetMunchkin(pNum).hand.GetCard(closId);
+		foreach (KeyValuePair<string, CardInfo> card in cardToDropList) {
+			if (card.Value.cardMovment.selectedToDrop)
+				cardIdToDrop.Add(card.Key);
+		}
+
+		if (cardIdToDrop.Count != numberOfCardsToDrop)
+			return;
+
+		foreach (KeyValuePair<string, CardInfo> card in cardToDropList) {
+			card.Value.cardMovment.selectedToDrop = false;
+			card.Value.cardMovment.ResetPosition();
+		}
+
+		Client.Instance.SendCardToDrop(cardIdToDrop);
+
+		blackPlane.SetActive(false);
+		okButton.SetActive(false);
+	}
+
+	public void Drop(int pNum, string parentSlotId, string targetSlotId, int cardId) {
+		CardInfo cardInfo = GetMunchkin(pNum).hand.GetSlot(parentSlotId).GetCard(); // NOT TARGET
 		Card card = CardManagerData.allCards.Find(c => c.id == cardId);
+
 		if (!cardInfo.cardIsOpen)
 			cardInfo.OpenCard(card);
 
-		if (targetSlot.StartsWith("WT_", System.StringComparison.CurrentCulture)) {
+		if (targetSlotId.StartsWith("WT", StringComparison.CurrentCulture)) {
 			if (card.cardType == Card.CardType.LVLUP) {
-				GetMunchkin(pNum).hand.RemoveCard(cardInfo);
+				GetMunchkin(pNum).hand.RemoveSlot(parentSlotId);
 				freezCards.Remove(cardInfo);
 
 				if (pNum == player.info.number) {
@@ -88,36 +117,27 @@ public class GameManager: MonoBehaviour {
 			}
 		}
 
-		switch (targetSlot) {
-			case "WEAPON1":		GetMunchkin(pNum).weapon1.AddCard(cardInfo); 	break;
-			case "WEAPON2":		GetMunchkin(pNum).weapon2.AddCard(cardInfo);	break;
-			case "HEAD":		GetMunchkin(pNum).head.AddCard(cardInfo);		break;
-			case "ARMOR":		GetMunchkin(pNum).armor.AddCard(cardInfo); 		break;
-			case "SHOES": 		GetMunchkin(pNum).shoes.AddCard(cardInfo); 		break;
-			case "CLASS":		GetMunchkin(pNum).munClass.AddCard(cardInfo);	break;
-			case "WT_MONSTER":	warTable.AddCard(cardInfo, false);				break;
-			case "WT_PLAYER":	warTable.AddCard(cardInfo, true);				break;
-		}
+		if (targetSlotId == "WTM")
+			warTable.AddCard(cardInfo, false);
+		else if (targetSlotId == "WTP")
+			warTable.AddCard(cardInfo, true);
+		else
+			GetMunchkin(pNum).GetSlot(targetSlotId).AddCard(cardInfo);
 
-		GetMunchkin(pNum).hand.RemoveCard(cardInfo);
+		GetMunchkin(pNum).hand.RemoveSlot(parentSlotId);
 
 		cardInfo.cardMovment.AllowDrop();
 		freezCards.Remove(cardInfo);
 	}
-	public void DropDisallowed(int cardId, string reason) {
-		freezCards.Find(c => c.selfCard.id == cardId).cardMovment.UndoDrop();
+	public void DropDisallowed(string slotId, string reason) {
+		freezCards.Find(c => c.cardMovment.parentSlotId == slotId).cardMovment.UndoDrop();
 	}
-	public void RemoveCard(int pNum, string cardSlot) {
-		switch (cardSlot) {
-			case "WEAPON1": GetMunchkin(pNum).weapon1.RemoveCard();		break;
-			case "WEAPON2": GetMunchkin(pNum).weapon2.RemoveCard();		break;
-			case "HEAD":	GetMunchkin(pNum).head.RemoveCard();		break;
-			case "ARMOR":	GetMunchkin(pNum).armor.RemoveCard();		break;
-			case "SHOES":	GetMunchkin(pNum).shoes.RemoveCard();		break;
-			case "CLASS":	GetMunchkin(pNum).munClass.RemoveCard();	break;
-		}
+	public void RemoveCard(int pNum, string slotId) {
+		if (slotId.StartsWith("HA", StringComparison.CurrentCulture))
+			GetMunchkin(pNum).hand.RemoveCard(slotId);
+		else
+			GetMunchkin(pNum).GetSlot(slotId).RemoveCard();
 	}
-
 	public void OpenDoor(int cardId, bool isMonster) {
 		CardInfo cardInfo = CreateCard(cardId);
 		cardInfo.cardMovment.State = CardMovment.CardState.OPEN;
@@ -126,5 +146,31 @@ public class GameManager: MonoBehaviour {
 			warTable.StartFight(cardInfo);
 		else
 			warTable.AddCard(cardInfo, true);
+	}
+
+	private readonly Dictionary<string, CardInfo> cardToDropList = new Dictionary<string, CardInfo>();
+	private int numberOfCardsToDrop = 0;
+	public void SelectionCards(List<string> slots, int numberOfCards) {
+		numberOfCardsToDrop = numberOfCards;
+
+		blackPlane.SetActive(true);
+		okButton.SetActive(true);
+
+		int i = 0;
+		foreach (string slotId in slots) {
+			float x = (1.4f * i) - ((float)(slots.Count - 1) / 2) * 1.4f;
+			float z = 0.45f; // numberOfCards < 6 ? 0.45f : 1.8f * (i % 2) - 0.7f;
+			i++;
+
+			CardInfo cardInfo = null;
+
+			if (slotId.StartsWith("HA", StringComparison.Ordinal))
+				cardInfo = player.hand.GetSlot(slotId).GetCard();
+			else
+				cardInfo = player.GetSlot(slotId).GetCard();
+
+			cardInfo.cardMovment.HoverToSelection(x, z);
+			cardToDropList.Add(slotId, cardInfo);
+		}
 	}
 }
