@@ -24,7 +24,6 @@ public class Hand: DropSlot {
 		card.cardMovment.defaultParent = transform;
 
 		PlaсeCards();
-		RemoveAllEmptySlots();
 		SetNewslotIds();
     }
 
@@ -38,29 +37,19 @@ public class Hand: DropSlot {
 	public void RemoveSlot(string sId) {
 		cardList.Remove(GetSlot(sId));
 		PlaсeCards();
-
-		//SetNewslotIds();
     }
-
-	private List<string> slotIdsToRemove = new List<string>();
 	public void RemoveCard(string sId) {
 		GetSlot(sId).RemoveCard();
 		//slotIdsToRemove.Add(sId);
 		RemoveSlot(sId);
 	}
-	public void RemoveAllEmptySlots() {
-		foreach (string slotId in slotIdsToRemove)
-			RemoveSlot(slotId);
 
-		slotIdsToRemove.Clear();
-	}
 	public void SetNewslotIds() {
 		int i = 0;
 		foreach (HandSlot slot in cardList) {
 			string newSlotId = SLOTID + i;
 			slot.slotId = newSlotId;
 			slot.GetCard().selfCard.slotId = newSlotId;
-			slot.GetCard().cardMovment.parentSlotId = newSlotId;
 			i++;
 		}
 	}
@@ -68,8 +57,6 @@ public class Hand: DropSlot {
     public void PlaсeCards() {
 		int i = 0;
 		foreach(HandSlot slot in cardList) {
-			//slot.GetCard().selfHidenCard.closeId = i;
-
 			float newAngle = (i - (float)(cardList.Count) / 2 + 0.5f) * angle;
 
 			Vector3 newPos;
@@ -101,7 +88,7 @@ public class HandSlot {
 	public HandSlot(string sId, CardInfo c) {
 		slotId = sId;
 		card = c;
-		card.cardMovment.parentSlotId = sId;
+		card.selfCard.slotId = sId;
 	}
 
 	public void RemoveCard() {

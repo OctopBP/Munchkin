@@ -13,7 +13,7 @@ public class CardMovment : MonoBehaviour {
 	[HideInInspector] public CardInfo cardInfo;
 	[HideInInspector] public CardAnimator animator;
 
-	public string parentSlotId; // TODO: убрать, использовать slotId из Card
+	//public string parentSlotId; // TODO: убрать, использовать slotId из Card
 
 	private Vector3 basePosition;
 	private Vector3 baseAngles;
@@ -43,9 +43,9 @@ public class CardMovment : MonoBehaviour {
 		border.enabled = false;
 		x_mark.enabled = false;
     }
-	private void Update() {
-		slotIdText.text = parentSlotId;
-	}
+	//private void Update() {
+		//slotIdText.text = parentSlotId;
+	//}
 
 	private void OnMouseOver() {
 		if (selected || moving || (State != CardState.ACTIVE && State != CardState.OPEN))
@@ -117,7 +117,7 @@ public class CardMovment : MonoBehaviour {
 				//string parentSlotId = Enum.GetName(typeof(DropSlotType), defaultParent.GetComponent<DropSlot>().dropSlotType);
 				string targetSlotId = Enum.GetName(typeof(DropSlotType), targetSlot.dropSlotType);
 
-				Client.Instance.OnDrop(parentSlotId, targetSlotId);
+				Client.Instance.OnDrop(cardInfo.selfCard.slotId, targetSlotId);
 				GameManager.Instance.freezCards.Add(cardInfo);
 				State = CardState.FREEZED;
 				return;

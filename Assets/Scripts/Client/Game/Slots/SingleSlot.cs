@@ -14,7 +14,7 @@ public class SingleSlot : DropSlot {
 		card = newCard;
 		newCard.transform.parent = transform;
 
-		card.cardMovment.parentSlotId = Enum.GetName(typeof(DropSlotType), dropSlotType);
+		card.selfCard.slotId = Enum.GetName(typeof(DropSlotType), dropSlotType);
 
 		PlaceCard();
 	}

@@ -153,6 +153,14 @@ public class Client : MonoBehaviour {
 					EmenyCardSelection(int.Parse(splitData[1]));
 					break;
 
+				case SendNames.hideweapon:
+					HideWeapon(int.Parse(splitData[1]));
+					break;
+
+				case SendNames.showweapon:
+					ShowWeapon(int.Parse(splitData[1]));
+					break;
+
 				default:
 					Debug.Log("Invalid message: " + msg);
 					break;
@@ -201,11 +209,8 @@ public class Client : MonoBehaviour {
 		// TODO: Remove
 
 		// just for now
-		if (turnStage != TurnStage.fight_enemy && turnStage != TurnStage.fight_player)
+		if (turnStage != TurnStage.fight_enemy && turnStage != TurnStage.fight_player && turnStage != TurnStage.waiting && turnStage != TurnStage.after_door)
 			GameManager.Instance.warTable.ClearTable();
-
-		GameManager.Instance.GetMunchkin(turnClientNumber).hand.RemoveAllEmptySlots();
-
 		//
 
 
@@ -281,6 +286,13 @@ public class Client : MonoBehaviour {
 			GameManager.Instance.player.SetDmgAndLvl(dmg_1, lvl_1);
 		}
 		GameManager.Instance.warTable.SetDmgText(monDmg, playerDmg);
+	}
+
+	private void HideWeapon(int pNum) {
+		GameManager.Instance.GetMunchkin(pNum).weapon2.gameObject.SetActive(false);
+	}
+	private void ShowWeapon(int pNum) {
+		GameManager.Instance.GetMunchkin(pNum).weapon2.gameObject.SetActive(true);
 	}
 
 	// Send

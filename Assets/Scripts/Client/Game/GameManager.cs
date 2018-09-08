@@ -83,6 +83,7 @@ public class GameManager: MonoBehaviour {
 			return;
 
 		foreach (KeyValuePair<string, CardInfo> card in cardToDropList) {
+			card.Value.cardMovment.x_mark.enabled = false;
 			card.Value.cardMovment.selectedToDrop = false;
 			card.Value.cardMovment.ResetPosition();
 		}
@@ -130,7 +131,7 @@ public class GameManager: MonoBehaviour {
 		freezCards.Remove(cardInfo);
 	}
 	public void DropDisallowed(string slotId, string reason) {
-		freezCards.Find(c => c.cardMovment.parentSlotId == slotId).cardMovment.UndoDrop();
+		freezCards.Find(c => c.selfCard.slotId == slotId).cardMovment.UndoDrop();
 	}
 	public void RemoveCard(int pNum, string slotId) {
 		if (slotId.StartsWith("HA", StringComparison.CurrentCulture))
